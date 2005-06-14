@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<message_catalog package_key="mail-tracking" package_version="0.3b" locale="en_US" charset="ISO-8859-1">
+
+  <msg key="Body">Body</msg>
+  <msg key="messages">messages</msg>
+  <msg key="Package">Package</msg>
+  <msg key="Recipient">Recipient</msg>
+  <msg key="Request_mail_tracking_for_instance_name">Request mail tracking for %instance_name%</msg>
+  <msg key="Request_Notification_for_instance_name">Request Notification for %instance_name%</msg>
+  <msg key="Sender">Sender</msg>
+  <msg key="Sent_Date">Sent Date</msg>
+  <msg key="Subject">Subject</msg>
+  <msg key="You_have_requested_to_track_emails_from_this_package">You have requested to track emails from this package (&lt;a href=&quot;%sub_url%&quot;&gt;unsubscribe&lt;/a&gt;).</msg>
+  <msg key="You_may_request_mail_tracking_for_this_package">You may &lt;a href=&quot;%sub_url%&quot;&gt;request mail tracking&lt;/a&gt; for this package: '%pretty_name%'.</msg>
+</message_catalog>

@@ -8,10 +8,8 @@
          select message_id, sender_id, recipient_id, package_id, sent_date, body, subject 
         from acs_mail_log
 	where message_id <> 0
-	$recipient_id_clause
-	$sender_id_clause
-	$package_id_clause
-	$orderby
+        [template::list::filter_where_clauses -and -name messages]
+        [template::list::orderby_clause -orderby -name messages]
         </querytext>
     </fullquery>
 

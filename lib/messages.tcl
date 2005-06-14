@@ -20,29 +20,6 @@ ad_page_contract {
     context:onevalue
 }
 
-set sender_p [exists_and_not_null sender_id]
-set receiver_p [exists_and_not_null receiver_id]
-set package_p [exists_and_not_null package_id]
-set sum_p [expr $sender_p + $receiver_p + $package_p]
-
-if {$sender_p} {
-    set sender_id_clause "and sender_id = :sender_id"
-} else {
-    set sender_id_clause ""
-}
-
-if {$receiver_p} {
-    set recipient_id_clause "and recipient_id = :recipient_id"
-} else {
-    set recipient_id_clause ""
-}
-
-if {$package_p} {
-    set package_id_clause "and package_id = :package_id"
-} else {
-    set package_id_clause ""
-}
-
 set page_title [ad_conn instance_name]
 set context [list "index"]
 
@@ -81,7 +58,19 @@ set context [list "index"]
 	subject {orderby subject}
 	sent_date {orderby sent_date}
     } -filters {
-	acs_mail_log_id
+	recipient_id {
+	    label "[_ mail-tracking.Recipient]"
+	    where_clause {recipient_id = :recipient_id}
+	}
+	sender_id {
+	    label "[_ mail-tracking.Sender]"
+	    where_clause "sender_id = :sender_id"
+	}
+	package_id {
+	    label "[_ mail-tracking.Package]"
+	    where_clause "package_id = :package_id"	
+	}
+
     }
 
 set orderby [template::list::orderby_clause -name "messages" -orderby]
