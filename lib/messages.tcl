@@ -97,6 +97,9 @@ db_multirow -extend { file_ids sender receiver package_name package_url } messag
 	set package_url ""
     }
     set file_ids [application_data_link::get_linked -from_object_id $log_id -to_object_type "file_storage_object"]
+    foreach file_id [application_data_link::get_linked -from_object_id $log_id -to_object_type "image"] {
+	lappend file_ids $file_id
+    }
 }
  
 ad_return_template
