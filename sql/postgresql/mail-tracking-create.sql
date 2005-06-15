@@ -16,12 +16,15 @@
 --  ======================================================
 
 create table acs_mail_log (
-	message_id		varchar(300)
-				constraint acs_mail_log_message_id_pk
-				primary key,
-	owner_id		integer
+	
+	log_id			integer
+				constraint acs_mail_log_object_id_fk
+				references acs_objects(object_id),
+	message_id		varchar(300),
+	-- object_id of the object that triggered the sending of the email
+	object_id		integer
 				constraint acs_mail_log_owner_id_fk
-				references users(user_id),
+				references acs_objects(object_id),
 	recipient_id		integer
 				constraint acs_mail_log_recipient_id_fk
 				references parties(party_id),
@@ -34,22 +37,49 @@ create table acs_mail_log (
 	sent_date		timestamp);
 
 
+-- create the content type
+select acs_object_type__create_type (
+   'mail_log',              -- content_type
+   '#mail-tracking.ACS_Mail_Log_Entry#',             -- pretty_name 
+   '#mail-tracking.ACS_Mail_Log_Entries#',           -- pretty_plural
+   'acs_object',                  -- supertype
+   'acs_mail_log',            -- table_name (should this be pm_task?)
+   'log_id',                   -- id_column 
+   'mail_tracking',              -- package_name
+   'f',                           -- abstract_p
+   NULL,                          -- type_extension_table
+   NULL                           -- name_method
+);
 
-create function acs_mail_log__new (integer, integer, integer, integer, varchar, varchar)
+create or replace function acs_mail_log__new (integer,varchar, integer, integer, integer, varchar, varchar,integer,varchar,integer,integer)
 returns integer as '
-declare
-	p_message_id		alias for $1;
-	p_recipient_id		alias for $2;
-	p_sender_id		alias for $3;
-	p_package_id		alias for $4;
-	p_subject		alias for $5;
-	p_body			alias for $6;
+declare	
+	p_log_id alias for $1;
+	p_message_id alias for $2;
+	p_recipient_id alias for $3;
+	p_sender_id alias for $4;
+	p_package_id alias for $5;
+	p_subject alias for $6;
+	p_body alias for $7;
+	p_creation_user alias for $8;
+        p_creation_ip alias for $9;
+        p_context_id alias for $10;
+	p_object_id alias for $11;
+	v_log_id acs_mail_log.log_id%TYPE;
 begin
+	v_log_id := acs_object__new (
+		p_log_id,         -- object_id
+		''mail_log'', -- object_type
+		now(),   -- creation_date
+		p_creation_user,   -- creation_user
+		p_creation_ip,     -- creation_ip
+	        null
+	);
 
 	insert into acs_mail_log
-		(message_id, recipient_id, sender_id, package_id, subject, body, sent_date)
+		(log_id, message_id, recipient_id, sender_id, package_id, subject, body, sent_date, object_id)
 	values
-		(p_message_id, p_recipient_id, p_sender_id, p_package_id, p_subject, p_body, now());
+		(v_log_id, p_message_id, p_recipient_id, p_sender_id, p_package_id, p_subject, p_body, now(), p_object_id);
 
 	return 0;
 
