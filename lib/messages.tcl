@@ -45,6 +45,12 @@ set context [list "index"]
             subject {
                 label "[_ mail-tracking.Subject]"
             }
+            object_id {
+                label "[_ mail-tracking.Object_id]"
+            }
+            file_ids {
+                label "[_ mail-tracking.Files]"
+            }
             body {
                 label "[_ mail-tracking.Body]"
             }
@@ -75,7 +81,7 @@ set context [list "index"]
 
 set orderby [template::list::orderby_clause -name "messages" -orderby]
 
-db_multirow -extend { sender receiver package_name package_url } messages select_messages {} {
+db_multirow -extend { file_ids sender receiver package_name package_url } messages select_messages {} {
 
     acs_user::get -user_id $sender_id -array sender_info
     acs_user::get -user_id $recipient_id -array receiver_info
@@ -83,9 +89,14 @@ db_multirow -extend { sender receiver package_name package_url } messages select
     set sender "$sender_info(first_names) $sender_info(last_name)"
     set receiver "$receiver_info(first_names) $receiver_info(last_name)"
 
-    set package_name [apm_instance_name_from_id $package_id]
-    set package_url [apm_package_url_from_id $package_id]
-    
+    if {[exists_and_not_null $package_id]} {
+	set package_name [apm_instance_name_from_id $package_id]
+	set package_url [apm_package_url_from_id $package_id]
+    } else {
+	set package_name ""
+	set package_url ""
+    }
+    set file_ids [application_data_link::get_linked -from_object_id $log_id -to_object_type "file_storage_object"]
 }
  
 ad_return_template
