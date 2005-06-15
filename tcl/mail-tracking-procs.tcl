@@ -15,11 +15,40 @@ ad_library {
 
 }
 
-namespace eval mail_tracking {
+namespace eval mail_tracking {}
 
-    ad_proc -public package_key {} {
-        The package key
-    } {
-        return "mail-tracking"
-    }
+ad_proc -public mail_tracking::package_key {} {
+    The package key
+} {
+    return "mail-tracking"
 }
+
+ad_proc -public mail_tracking::new {
+    {-log_id ""}
+    {-package_id:required}
+    {-sender_id:required}
+    {-recipient_id:required}
+    {-body ""}
+    {-message_id:required}
+    {-subject ""}
+    {-object_id ""}
+    {-context_id ""}
+} {
+    Insert new log entry
+} {
+    set creation_ip "127.0.0.1"
+    return [db_exec_plsql insert_log_entry {select acs_mail_log__new (
+								     :log_id,
+								     :message_id,
+								     :recipient_id,
+								     :sender_id,
+								     :package_id,
+								     :subject,
+								     :body,
+								     :sender_id,
+								     :creation_ip,
+								     :context_id,
+								     :object_id
+								     )}]
+    
+}	       
