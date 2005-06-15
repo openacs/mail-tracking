@@ -16,7 +16,7 @@
 --  ======================================================
 
 create table acs_mail_log (
-	message_id		integer
+	message_id		varchar(300)
 				constraint acs_mail_log_message_id_pk
 				primary key,
 	owner_id		integer
@@ -148,80 +148,81 @@ end;
 -- Tracking Trigger acs_mail_log_tr			--
 --  ======================================================
 
-CREATE OR REPLACE FUNCTION public.acs_mail_log_tr()
-  RETURNS trigger AS
-'
-declare
-     v_recepient_id         	integer;  
-     v_sender_id       		integer default 0;
-     v_track_all_p		bool default 0;
-     v_object_id		integer;
-     begin
-
-	if old.package_id is null then 
-             raise notice \'Tracking: No way to track. Package Id was %. You need to check why.\', old.package_id;
-             return old;
-        end if;
-        
-        v_recepient_id := substring (old.to_addr from \'user_id ([0-9]+)\');
-	select into v_sender_id party_id from parties where email = old.from_addr;
-
-    if v_recepient_id is null then
-         raise notice \'Tracking: Unable to extract user_id from: %. Not able to log this message.\', old.to_addr;
-	 return old;
-    end if;
-    
-    if v_sender_id is null then
-         raise notice \'Tracking: Unknown sender %. Not able to log this message.\', old.from_addr;
-	 return old;
-    end if;
-    
-    -- if TrackAllMails parameter is set to 0 we only track mails from packages that have requests
-
-    select 	into v_track_all_p pv.attr_value 
-		from apm_parameter_values pv, apm_parameters p 
-    where p.parameter_id = pv.parameter_id
-		and p.parameter_name = \'TrackAllMails\'
-    and p.package_key = \'mail-tracking\'
-    limit 1;
-    
-    if v_track_all_p = \'1\' then 
-    
-    perform acs_mail_log__new (
-        	old.message_id, 
-        	v_recepient_id, 
-        	v_sender_id, 
-        	old.package_id, 
-        	old.subject, 
-        	old.body
-        );
-        
-    else
-    	select into v_object_id object_id from acs_mail_tracking_request where object_id = old.package_id;
-    	
-    	if v_object_id is not null then
-
-		raise notice \'Tracking: Logged mail for package_id %.\', v_object_id;
-
-    		perform acs_mail_log__new (
-		        old.message_id, 
-		        v_recepient_id, 
-		        v_sender_id, 
-		        old.package_id, 
-		        old.subject, 
-		        old.body
-        	);
-        else
-		raise notice \'Tracking: No request for package id % and tracking all mails is turned off.\', old.package_id;
-	end if;
-    
-    end if;
-
-     return old;
-    end;
-'
-  LANGUAGE 'plpgsql';
-
-
-create trigger acs_mail_log_tr after delete on acs_mail_lite_queue
-for each row execute procedure acs_mail_log_tr();
+-- CREATE OR REPLACE FUNCTION public.acs_mail_log_tr()
+--  RETURNS trigger AS
+--'
+--declare
+--     v_recepient_id         	integer;  
+--     v_sender_id       		integer default 0;
+--     v_track_all_p		bool default 0;
+--    v_object_id		integer;
+--    begin
+--
+--	if old.package_id is null then 
+--            raise notice \'Tracking: No way to track. Package Id was %. You need to check why.\', old.package_id;
+--            return old;
+--       end if;
+--       
+--       v_recepient_id := substring (old.to_addr from \'user_id ([0-9]+)\');
+--	select into v_sender_id party_id from parties where email = old.from_addr;
+--
+--   if v_recepient_id is null then
+--        raise notice \'Tracking: Unable to extract user_id from: %. Not able to log this message.\', old.to_addr;
+--	 return old;
+--   end if;
+--   
+--   if v_sender_id is null then
+--        raise notice \'Tracking: Unknown sender %. Not able to log this message.\', old.from_addr;
+--	 return old;
+--   end if;
+--   
+--   -- if TrackAllMails parameter is set to 0 we only track mails from packages that have requests
+--
+--   select 	into v_track_all_p pv.attr_value 
+--		from apm_parameter_values pv, apm_parameters p 
+--   where p.parameter_id = pv.parameter_id
+--		and p.parameter_name = \'TrackAllMails\'
+--   and p.package_key = \'mail-tracking\'
+--   limit 1;
+--   
+--   if v_track_all_p = \'1\' then 
+--   
+--   perform acs_mail_log__new (
+--       	old.message_id, 
+--       	v_recepient_id, 
+--       	v_sender_id, 
+--       	old.package_id, 
+--       	old.subject, 
+--       	old.body
+--       );
+--       
+--   else
+--   	select into v_object_id object_id from acs_mail_tracking_request where object_id = old.package_id;
+--   	
+--   	if v_object_id is not null then
+--
+--		raise notice \'Tracking: Logged mail for package_id %.\', v_object_id;
+--
+--   		perform acs_mail_log__new (
+--		        old.message_id, 
+--		        v_recepient_id, 
+--		        v_sender_id, 
+--		        old.package_id, 
+--		        old.subject, 
+--		        old.body
+--       	);
+--       else
+--		raise notice \'Tracking: No request for package id % and tracking all mails is turned off.\', old.package_id;
+--	end if;
+--   
+--   end if;
+--
+--    return old;
+--   end;
+--
+-- LANGUAGE 'plpgsql';
+--
+--
+--reate trigger acs_mail_log_tr after delete on acs_mail_lite_queue
+--or each row execute procedure acs_mail_log_tr();
+--
