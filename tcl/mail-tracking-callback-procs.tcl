@@ -14,19 +14,26 @@ ad_proc -public -callback acs_mail_lite::complex_send -impl mail_tracking {
     {-package_id:required}
     {-from_party_id:required}
     {-to_party_id:required}
-    {-body:required}
+    {-body ""}
     {-message_id:required}
-    {-subject:required}
+    {-subject ""}
+    {-object_id ""}
+    {-file_ids ""}
 } {
     create a new entry in the mail tracking table
 } {
 
-    db_dml insert_log_entry {insert into acs_mail_log
-	(message_id, recipient_id, sender_id, package_id, subject, body, sent_date)
-	values
-	(:message_id, :to_party_id, :from_party_id, :package_id, :subject, :body, now())
-    }
+    set log_id [mail_tracking::new -package_id $package_id \
+		    -sender_id $from_party_id \
+		    -recipient_id $to_party_id \
+		    -body $body \
+		    -message_id $message_id \
+		    -subject $subject \
+		    -object_id $object_id]
 
+    foreach file_id $file_ids {
+	application_data_link::new -this_object_id $log_id -target_object_id $file_id
+    }
 }
 
 ad_proc -public -callback acs_mail_lite::send -impl mail_tracking {
@@ -40,10 +47,11 @@ ad_proc -public -callback acs_mail_lite::send -impl mail_tracking {
     create a new entry in the mail tracking table
 } {
 
-    db_dml insert_log_entry {insert into acs_mail_log
-	(message_id, recipient_id, sender_id, package_id, subject, body, sent_date)
-	values
-	(:message_id, :to_party_id, :from_party_id, :package_id, :subject, :body, now())
-    }
+    set log_id [mail_tracking::new -package_id $package_id \
+		    -sender_id $from_party_id \
+		    -recipient_id $to_party_id \
+		    -body $body \
+		    -message_id $message_id \
+		    -subject $subject]
 
 }
