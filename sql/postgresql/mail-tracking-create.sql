@@ -81,7 +81,7 @@ begin
 	values
 		(v_log_id, p_message_id, p_recipient_id, p_sender_id, p_package_id, p_subject, p_body, now(), p_object_id);
 
-	return 0;
+	return v_log_id;
 
 end;' language 'plpgsql';
 
