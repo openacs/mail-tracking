@@ -83,11 +83,8 @@ set orderby [template::list::orderby_clause -name "messages" -orderby]
 
 db_multirow -extend { file_ids sender receiver package_name package_url } messages select_messages {} {
 
-    acs_user::get -user_id $sender_id -array sender_info
-    acs_user::get -user_id $recipient_id -array receiver_info
-
-    set sender "$sender_info(first_names) $sender_info(last_name)"
-    set receiver "$receiver_info(first_names) $receiver_info(last_name)"
+    set sender [person::name -person_id $sender_id]
+    set receiver [person::name -person_id $recipient_id]
 
     if {[exists_and_not_null $package_id]} {
 	set package_name [apm_instance_name_from_id $package_id]
