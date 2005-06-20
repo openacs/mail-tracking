@@ -53,6 +53,7 @@ set context [list "index"]
             }
             body {
                 label "[_ mail-tracking.Body]"
+		display_col body;noquote
             }
             sent_date {
                 label "[_ mail-tracking.Sent_Date]"
