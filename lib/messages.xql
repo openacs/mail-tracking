@@ -5,7 +5,7 @@
 
     <fullquery name="select_messages">
         <querytext>
-         select message_id, sender_id, recipient_id, package_id, sent_date, body, subject 
+         select message_id, sender_id, recipient_id, package_id, sent_date, body, subject, object_id, log_id
         from acs_mail_log
 	where message_id <> 0
         [template::list::filter_where_clauses -and -name messages]
