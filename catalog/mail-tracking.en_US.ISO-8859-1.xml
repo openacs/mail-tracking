@@ -2,9 +2,12 @@
 <message_catalog package_key="mail-tracking" package_version="0.3b" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Body">Body</msg>
+  <msg key="Emails_to">Watch Emails to:</msg>
+  <msg key="Employees">Employees</msg>
   <msg key="Files">Files</msg>
   <msg key="messages">messages</msg>
   <msg key="Object_id">Object Id</msg>
+  <msg key="Organization">Organization</msg>
   <msg key="Package">Package</msg>
   <msg key="Recipient">Recipient</msg>
   <msg key="Request_mail_tracking_for_instance_name">Request mail tracking for %instance_name%</msg>
