@@ -12,6 +12,7 @@ ad_page_contract {
 @cvs-id $Id$
 } -query {
     recipient_id:optional
+    {emp_mail_f:optional 1}
     sender_id:optional
     package_id:optional
     {orderby:optional "recipient_id"}
@@ -23,62 +24,84 @@ ad_page_contract {
 set page_title [ad_conn instance_name]
 set context [list "index"]
 
-    template::list::create  -name messages  -multirow messages  -key acs_mail_log_id  -row_pretty_plural "[_ mail-tracking.messages]" -elements {
-            sender_id {
-                label "[_ mail-tracking.Sender]"
-		display_template {
-		    @messages.sender@
-		}
-            }
-            recipient_id {
-                label "[_ mail-tracking.Recipient]"
-		display_template {
+
+set filters [list \
+		 sender_id {
+		     label "[_ mail-tracking.Sender]"
+		     where_clause "sender_id = :sender_id"
+		 } \
+		 package_id {
+		     label "[_ mail-tracking.Package]"
+		     where_clause "package_id = :package_id"	
+		 }]
+
+set recipient_where_clause ""
+
+if { [exists_and_not_null recipient_id] } {
+    set recipient_where_clause " and recipient_id = $recipient_id"
+}
+
+set org_p [organization::organization_p -party_id $recipient_id] 
+if { $org_p } {
+    lappend filters emp_mail_f {
+	label "[_ mail-tracking.Emails_to]"
+	values { {"[_ mail-tracking.Organization]" 1} { "[_ mail-tracking.Employees]" 2 }}
+    }
+}
+
+if { $org_p && [string equal $emp_mail_f 2] } {
+    set emp_list [contact::util::get_employees -organization_id $recipient_id]
+    lappend emp_list $recipient_id
+    set recipient_where_clause " and recipient_id in ([template::util::tcl_to_sql_list $emp_list])"
+}
+
+template::list::create \
+    -name messages \
+    -multirow messages \
+    -key acs_mail_log_id \
+    -row_pretty_plural "[_ mail-tracking.messages]" \
+    -elements {
+	sender_id {
+	    label "[_ mail-tracking.Sender]"
+	    display_template {
+		@messages.sender@
+	    }
+	}
+	recipient_id {
+	    label "[_ mail-tracking.Recipient]"
+	    display_template {
 		    @messages.receiver@
-		}
-            }
-            package_id {
-                label "[_ mail-tracking.Package]"
-		display_template {
-		    <a href="@messages.package_url@">@messages.package_name@</a>
-		}
-            }
-            subject {
-                label "[_ mail-tracking.Subject]"
-            }
-            object_id {
-                label "[_ mail-tracking.Object_id]"
-            }
-            file_ids {
-                label "[_ mail-tracking.Files]"
-            }
-            body {
-                label "[_ mail-tracking.Body]"
-		display_col body;noquote
-            }
-            sent_date {
-                label "[_ mail-tracking.Sent_Date]"
-            }            
+	    }
+	}
+	package_id {
+	    label "[_ mail-tracking.Package]"
+	    display_template {
+		<a href="@messages.package_url@">@messages.package_name@</a>
+	    }
+	}
+	subject {
+	    label "[_ mail-tracking.Subject]"
+	}
+	object_id {
+	    label "[_ mail-tracking.Object_id]"
+	}
+	file_ids {
+	    label "[_ mail-tracking.Files]"
+	}
+	body {
+	    label "[_ mail-tracking.Body]"
+	    display_col body;noquote
+	}
+	sent_date {
+	    label "[_ mail-tracking.Sent_Date]"
+	}            
     } -orderby {
 	recipient_id {orderby recipient_id}
 	sender_id {orderby sender_id}
 	package_id {orderby package_id}
 	subject {orderby subject}
 	sent_date {orderby sent_date}
-    } -filters {
-	recipient_id {
-	    label "[_ mail-tracking.Recipient]"
-	    where_clause {recipient_id = :recipient_id}
-	}
-	sender_id {
-	    label "[_ mail-tracking.Sender]"
-	    where_clause "sender_id = :sender_id"
-	}
-	package_id {
-	    label "[_ mail-tracking.Package]"
-	    where_clause "package_id = :package_id"	
-	}
-
-    }
+    } -filters $filters
 
 set orderby [template::list::orderby_clause -name "messages" -orderby]
 
