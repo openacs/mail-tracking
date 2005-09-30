@@ -41,18 +41,20 @@ if { [exists_and_not_null recipient_id] } {
     set recipient_where_clause " and recipient_id = $recipient_id"
 }
 
-set org_p [organization::organization_p -party_id $recipient_id] 
-if { $org_p } {
-    lappend filters emp_mail_f {
-	label "[_ mail-tracking.Emails_to]"
-	values { {"[_ mail-tracking.Organization]" 1} { "[_ mail-tracking.Employees]" 2 }}
+if { [apm_package_installed_p organizations] && [exists_and_not_null recipient_id]} {
+    set org_p [organization::organization_p -party_id $recipient_id] 
+    if { $org_p } {
+	lappend filters emp_mail_f {
+	    label "[_ mail-tracking.Emails_to]"
+	    values { {"[_ mail-tracking.Organization]" 1} { "[_ mail-tracking.Employees]" 2 }}
+	}
     }
-}
-
-if { $org_p && [string equal $emp_mail_f 2] } {
-    set emp_list [contact::util::get_employees -organization_id $recipient_id]
-    lappend emp_list $recipient_id
-    set recipient_where_clause " and recipient_id in ([template::util::tcl_to_sql_list $emp_list])"
+    
+    if { $org_p && [string equal $emp_mail_f 2] } {
+	set emp_list [contact::util::get_employees -organization_id $recipient_id]
+	lappend emp_list $recipient_id
+	set recipient_where_clause " and recipient_id in ([template::util::tcl_to_sql_list $emp_list])"
+    }
 }
 
 template::list::create \
@@ -96,11 +98,26 @@ template::list::create \
 	    label "[_ mail-tracking.Sent_Date]"
 	}            
     } -orderby {
-	recipient_id {orderby recipient_id}
-	sender_id {orderby sender_id}
-	package_id {orderby package_id}
-	subject {orderby subject}
-	sent_date {orderby sent_date}
+	recipient_id {
+	    orderby recipient_id
+	    label "[_ mail-tracking.Recipient]"
+	}
+	sender_id {
+	    orderby sender_id
+	    label "[_ mail-tracking.Sender]"
+	}
+	package_id {
+	    orderby package_id
+	    label "[_ mail-tracking.Package]"
+	}
+	subject {
+	    orderby subject
+	    label "[_ mail-tracking.Subject]"
+	}
+	sent_date {
+	    orderby sent_date
+	    label "[_ mail-tracking.Sent_Date]"
+	}
     } -filters $filters
 
 set orderby [template::list::orderby_clause -name "messages" -orderby]
