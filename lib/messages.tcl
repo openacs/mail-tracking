@@ -92,7 +92,9 @@ template::list::create \
 	}
 	body {
 	    label "[_ mail-tracking.Body]"
-	    display_col body;noquote
+	    display_template {
+		<a href="/tracking/one-message?log_id=@messages.log_id@" title="#mail-tracking.View_full_message#">#mail-tracking.View#</a>
+	    }
 	}
 	sent_date {
 	    label "[_ mail-tracking.Sent_Date]"
@@ -122,10 +124,11 @@ template::list::create \
 
 set orderby [template::list::orderby_clause -name "messages" -orderby]
 
-db_multirow -extend { file_ids sender receiver package_name package_url } messages select_messages {} {
-
-    set sender [person::name -person_id $sender_id]
-    set receiver [person::name -person_id $recipient_id]
+db_multirow -extend { file_ids sender receiver package_name package_url url_message_id } messages select_messages {} {
+    set sender ""
+    set receiver ""
+    catch { set sender [person::name -person_id $sender_id] } errMsg
+    catch { set receiver [person::name -person_id $recipient_id]} errMsg
 
     if {[exists_and_not_null $package_id]} {
 	set package_name [apm_instance_name_from_id $package_id]
@@ -134,10 +137,11 @@ db_multirow -extend { file_ids sender receiver package_name package_url } messag
 	set package_name ""
 	set package_url ""
     }
-    set file_ids [application_data_link::get_linked -from_object_id $log_id -to_object_type "file_storage_object"]
+    set file_ids [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_revision"]
     foreach file_id [application_data_link::get_linked -from_object_id $log_id -to_object_type "image"] {
 	lappend file_ids $file_id
     }
+
 }
  
 ad_return_template
