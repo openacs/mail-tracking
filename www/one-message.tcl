@@ -29,8 +29,13 @@ if { [empty_string_p $return_url] } {
 # Get the information of the message
 db_1row get_message_info { }
 
-catch { set sender [person::name -person_id $sender_id] } errorMsg
-catch { set recipient [person::name -person_id $recipient_id] } errMsg
+if { [catch { set sender [person::name -person_id $sender_id] } errorMsg] } {
+    set sender ""
+}
+
+if { [catch { set recipient [person::name -person_id $recipient_id] } errMsg] } {
+    set recipient ""
+}
 
 # We get the related files
 set files [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_revision"]
