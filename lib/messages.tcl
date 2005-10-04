@@ -3,6 +3,7 @@
 # recipient_id - to filter mails for a single receiver
 # sender_id - to filter mails for a single sender
 # package_id to filter mails for a package instance
+# object_id to filter mails for a object_id
 
 
 ad_page_contract {
@@ -15,6 +16,7 @@ ad_page_contract {
     {emp_mail_f:optional 1}
     sender_id:optional
     package_id:optional
+    object_id:optional
     {orderby:optional "recipient_id"}
 } -properties {
     acs_mail_log:multirow 
@@ -29,6 +31,10 @@ set filters [list \
 		 sender_id {
 		     label "[_ mail-tracking.Sender]"
 		     where_clause "sender_id = :sender_id"
+		 } \
+		 object_id {
+		     label "[_ mail-trackin.Object_id]"
+		     where_clause "object_id = :object_id"
 		 } \
 		 package_id {
 		     label "[_ mail-tracking.Package]"
