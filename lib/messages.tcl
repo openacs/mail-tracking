@@ -1,9 +1,10 @@
 # Expects the following optional parameters (in each combination):
 #
-# recipient_id - to filter mails for a single receiver
-# sender_id - to filter mails for a single sender
-# package_id to filter mails for a package instance
-# object_id to filter mails for a object_id
+# recipient_id  - to filter mails for a single receiver
+# sender_id     - to filter mails for a single sender
+# package_id    - to filter mails for a package instance
+# object_id     - to filter mails for a object_id
+# show_filter_p - to show or not the filters in the inlcude, default to "t"
 
 
 ad_page_contract {
@@ -19,6 +20,7 @@ ad_page_contract {
     object_id:optional
     {orderby:optional "recipient_id"}
 } -properties {
+    show_filter_p
     acs_mail_log:multirow 
     context:onevalue
 }
@@ -26,6 +28,9 @@ ad_page_contract {
 set page_title [ad_conn instance_name]
 set context [list "index"]
 
+if { ![exists_and_not_null show_filter_p] } {
+    set show_filter_p "t"
+}
 
 set filters [list \
 		 sender_id {
