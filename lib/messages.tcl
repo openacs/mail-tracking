@@ -110,9 +110,13 @@ template::list::create \
 	}
 	object_id {
 	    label "[_ mail-tracking.Object_id]"
+	    display_template {
+		<a href="@messages.object_url@">$object_id</a>
+	    }
 	}
 	file_ids {
 	    label "[_ mail-tracking.Files]"
+	    display_template {@messages.download_files;noquote@}
 	}
 	body {
 	    label "[_ mail-tracking.Body]"
@@ -155,7 +159,7 @@ template::list::create \
 
 set orderby [template::list::orderby_clause -name "messages" -orderby]
 
-db_multirow -extend { file_ids sender receiver package_name package_url url_message_id } messages select_messages {} {
+db_multirow -extend { file_ids object_url sender receiver package_name package_url url_message_id download_files} messages select_messages {} {
     set sender ""
     set receiver ""
     catch { set sender [person::name -person_id $sender_id] } errMsg
@@ -173,6 +177,15 @@ db_multirow -extend { file_ids sender receiver package_name package_url url_mess
 	lappend file_ids $file_id
     }
 
+    set object_url "/o/$object_id"
+    set download_files ""
+    
+    foreach file $file_ids {
+	set file_item_id [item::get_item_from_revision $file]
+	set file_title [content::item::get_title -item_id $file_item_id]
+	# Creating the link to dowload the files
+	append download_files "<a href=\"/tracking/download/?file_id=$file_item_id\">$file_title</a><br>"
+    }
 }
  
 ad_return_template
