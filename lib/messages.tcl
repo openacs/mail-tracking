@@ -5,7 +5,8 @@
 # package_id    - to filter mails for a package instance
 # object_id     - to filter mails for a object_id
 # show_filter_p - to show or not the filters in the inlcude, default to "t"
-
+# elements      - a list of elements to show in the list template. If not provided will show all elements.
+#                 Posible elemets are: sender_id recipient_id package_id subject object_id file_ids body sent_date
 
 ad_page_contract {
 
@@ -30,6 +31,17 @@ set context [list "index"]
 
 if { ![exists_and_not_null show_filter_p] } {
     set show_filter_p "t"
+}
+
+# Wich elements will be shown on the list template
+set rows_list [list]
+if {![exists_and_not_null elements] } {
+    set rows_list [list sender_id {} recipient_id {} package_id {} subject {} object_id {} file_ids {} body {} sent_date {}]
+} else {
+    foreach element $elements {
+	lappend rows_list $element
+	lappend rows_list [list]
+    }
 }
 
 set filters [list \
@@ -70,10 +82,11 @@ if { [apm_package_installed_p organizations] && [exists_and_not_null recipient_i
 
 template::list::create \
     -name messages \
+    -selected_format normal \
     -multirow messages \
     -key acs_mail_log_id \
     -row_pretty_plural "[_ mail-tracking.messages]" \
-    -elements {
+    -elements { 
 	sender_id {
 	    label "[_ mail-tracking.Sender]"
 	    display_template {
@@ -131,7 +144,14 @@ template::list::create \
 	    orderby sent_date
 	    label "[_ mail-tracking.Sent_Date]"
 	}
-    } -filters $filters
+    } -formats {
+	normal {
+	    label "Table"
+	    layout table
+	    row $rows_list
+	}
+    } -filters $filters \
+
 
 set orderby [template::list::orderby_clause -name "messages" -orderby]
 
