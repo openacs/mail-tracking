@@ -111,7 +111,7 @@ template::list::create \
 	object_id {
 	    label "[_ mail-tracking.Object_id]"
 	    display_template {
-		<a href="@messages.object_url@">$object_id</a>
+		<a href="@messages.object_url@">@messages.object_id@</a>
 	    }
 	}
 	file_ids {
