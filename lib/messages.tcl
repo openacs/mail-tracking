@@ -33,6 +33,7 @@ if { ![exists_and_not_null show_filter_p] } {
     set show_filter_p "t"
 }
 
+set tracking_url [apm_package_url_from_key "mail-tracking"]
 # Wich elements will be shown on the list template
 set rows_list [list]
 if {![exists_and_not_null elements] } {
@@ -121,7 +122,7 @@ template::list::create \
 	body {
 	    label "[_ mail-tracking.Body]"
 	    display_template {
-		<a href="/tracking/one-message?log_id=@messages.log_id@" title="#mail-tracking.View_full_message#">#mail-tracking.View#</a>
+		<a href="${tracking_url}one-message?log_id=@messages.log_id@" title="#mail-tracking.View_full_message#">#mail-tracking.View#</a>
 	    }
 	}
 	sent_date {
@@ -172,20 +173,28 @@ db_multirow -extend { file_ids object_url sender receiver package_name package_u
 	set package_name ""
 	set package_url ""
     }
-    set file_ids [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_revision"]
-    foreach file_id [application_data_link::get_linked -from_object_id $log_id -to_object_type "image"] {
-	lappend file_ids $file_id
+
+    # We get the related files
+    set files [list]
+    set file_revisions [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_revision"]
+    
+    foreach file $file_revisions {
+	lappend files [item::get_item_from_revision $file]
+    }
+    
+    foreach file_id [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_item"] {
+	lappend files $file_id
+    }
+    
+    set download_files ""
+    
+    foreach file $files {
+	set title [content::item::get_title -item_id $file]
+	# Creating the link to dowload the files
+	append download_files "<a href=\"[export_vars -base "${tracking_url}download/$title" -url {{file_id $file}}]\">$title</a><br>"
     }
 
     set object_url "/o/$object_id"
-    set download_files ""
-    
-    foreach file $file_ids {
-	set file_item_id [item::get_item_from_revision $file]
-	set file_title [content::item::get_title -item_id $file_item_id]
-	# Creating the link to dowload the files
-	append download_files "<a href=\"/tracking/download/?file_id=$file_item_id\">$file_title</a><br>"
-    }
 }
  
 ad_return_template

@@ -38,16 +38,21 @@ if { [catch { set recipient [person::name -person_id $recipient_id] } errMsg] } 
 }
 
 # We get the related files
-set files [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_revision"]
-foreach file_id [application_data_link::get_linked -from_object_id $log_id -to_object_type "image"] {
+set files [list]
+set file_revisions [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_revision"]
+
+foreach file $file_revisions {
+    lappend files [item::get_item_from_revision $file]
+}
+
+foreach file_id [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_item"] {
     lappend files $file_id
 }
 
 set download_files ""
 
 foreach file $files {
-    set file_item_id [item::get_item_from_revision $file]
-    set file_title [content::item::get_title -item_id $file_item_id]
+    set title [content::item::get_title -item_id $file]
     # Creating the link to dowload the files
-    append download_files "<a href=\"download/?file_id=$file_item_id\">$file_title</a><br>"
+    append download_files "<a href=\"[export_vars -base "download/$title" -url {{file_id $file}}]\">$title</a><br>"
 }
