@@ -30,11 +30,22 @@ if { [empty_string_p $return_url] } {
 db_1row get_message_info { }
 
 if { [catch { set sender [person::name -person_id $sender_id] } errorMsg] } {
-    set sender ""
+    # We will try to see if it's a contact and has an email. This will break
+    # if the contacts package is not installed so this is why we need to put 
+    # it inside a catch
+    if { [catch { set sender [contact::email -party_id $sender_id] } errorMsg] } {
+	set sender ""
+    }
 }
 
 if { [catch { set recipient [person::name -person_id $recipient_id] } errMsg] } {
+    # We will try to see if it's a contact and has an email. This will break
+    # if the contacts package is not installed so this is why we need to put 
+    # it inside a catch
     set recipient ""
+    if { [catch { set recipient [contact::email -party_id $recipient_id] } errorMsg] } {
+	set recipient ""
+    }
 }
 
 # We get the related files

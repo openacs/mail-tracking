@@ -163,9 +163,23 @@ set orderby [template::list::orderby_clause -name "messages" -orderby]
 db_multirow -extend { file_ids object_url sender receiver package_name package_url url_message_id download_files} messages select_messages {} {
     set sender ""
     set receiver ""
-    catch { set sender [person::name -person_id $sender_id] } errMsg
-    catch { set receiver [person::name -person_id $recipient_id]} errMsg
-
+    if { [catch { set sender [person::name -person_id $sender_id] } errMsg] } {
+	# We will try to see if it's a contact and has an email. This will break
+	# if the contacts package is not installed so this is why we need to put
+	# it inside a catch
+	if { [catch { set sender [contact::email -party_id $sender_id] } errorMsg] } {
+	    set sender ""
+	}
+    }
+    if { [catch { set receiver [person::name -person_id $recipient_id]} errMsg] } {
+	# We will try to see if it's a contact and has an email. This will break
+	# if the contacts package is not installed so this is why we need to put
+	# it inside a catch
+	if { [catch { set receiver [contact::email -party_id $recipient_id] } errorMsg] } {
+	    set receiver ""
+	}
+    }
+    
     if {[exists_and_not_null $package_id]} {
 	set package_name [apm_instance_name_from_id $package_id]
 	set package_url [apm_package_url_from_id $package_id]
