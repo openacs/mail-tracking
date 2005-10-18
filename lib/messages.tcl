@@ -4,6 +4,8 @@
 # sender_id     - to filter mails for a single sender
 # package_id    - to filter mails for a package instance
 # object_id     - to filter mails for a object_id
+# page          - to filter the pagination
+# page_size     - to know how many rows show (optional default to 25)
 # show_filter_p - to show or not the filters in the inlcude, default to "t"
 # elements      - a list of elements to show in the list template. If not provided will show all elements.
 #                 Posible elemets are: sender_id recipient_id package_id subject object_id file_ids body sent_date
@@ -29,8 +31,16 @@ ad_page_contract {
 set page_title [ad_conn instance_name]
 set context [list "index"]
 
+if { [info exist object_id] && [empty_string_p $object_id] } {
+   unset object_id
+}
+
 if { ![exists_and_not_null show_filter_p] } {
     set show_filter_p "t"
+}
+
+if { ![exists_and_not_null page_size] } {
+    set page_size 10
 }
 
 set tracking_url [apm_package_url_from_key "mail-tracking"]
@@ -57,7 +67,7 @@ set filters [list \
 		 package_id {
 		     label "[_ mail-tracking.Package]"
 		     where_clause "package_id = :package_id"	
-		 }]
+		 } ]
 
 set recipient_where_clause ""
 
@@ -81,11 +91,17 @@ if { [apm_package_installed_p organizations] && [exists_and_not_null recipient_i
     }
 }
 
+
+
+
 template::list::create \
     -name messages \
     -selected_format normal \
     -multirow messages \
-    -key acs_mail_log_id \
+    -key acs_mail_log.log_id \
+    -page_size $page_size \
+    -page_flush_p 0 \
+    -page_query_name "messages_pagination" \
     -row_pretty_plural "[_ mail-tracking.messages]" \
     -elements { 
 	sender_id {
@@ -158,9 +174,7 @@ template::list::create \
     } -filters $filters \
 
 
-set orderby [template::list::orderby_clause -name "messages" -orderby]
-
-db_multirow -extend { file_ids object_url sender receiver package_name package_url url_message_id download_files} messages select_messages {} {
+db_multirow -extend { file_ids object_url sender receiver package_name package_url url_message_id download_files} messages select_messages { } {
     set sender ""
     set receiver ""
     if { [catch { set sender [person::name -person_id $sender_id] } errMsg] } {
@@ -210,5 +224,7 @@ db_multirow -extend { file_ids object_url sender receiver package_name package_u
 
     set object_url "/o/$object_id"
 }
+
+
  
 ad_return_template

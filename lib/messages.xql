@@ -9,6 +9,18 @@
         from acs_mail_log
 	where message_id <> 0
 	$recipient_where_clause
+	[template::list::page_where_clause -and -name messages]		
+        [template::list::filter_where_clauses -and -name messages]
+        [template::list::orderby_clause -orderby -name messages]
+        </querytext>
+    </fullquery>
+
+    <fullquery name="messages_pagination">
+        <querytext>
+         select log_id
+        from acs_mail_log	
+	where message_id <> 0	
+	$recipient_where_clause 
         [template::list::filter_where_clauses -and -name messages]
         [template::list::orderby_clause -orderby -name messages]
         </querytext>
