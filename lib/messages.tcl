@@ -1,14 +1,14 @@
 # Expects the following optional parameters (in each combination):
 #
-# recipient_id  - to filter mails for a single receiver
-# sender_id     - to filter mails for a single sender
-# package_id    - to filter mails for a package instance
-# object_id     - to filter mails for a object_id
-# page          - to filter the pagination
-# page_size     - to know how many rows show (optional default to 25)
-# show_filter_p - to show or not the filters in the inlcude, default to "t"
-# elements      - a list of elements to show in the list template. If not provided will show all elements.
-#                 Posible elemets are: sender_id recipient_id package_id subject object_id file_ids body sent_date
+# recipient_id     - to filter mails for a single receiver
+# sender_id        - to filter mails for a single sender
+# object_id        - to filter mails for a object_id
+# page             - to filter the pagination
+# page_size        - to know how many rows show (optional default to 10)
+# show_filter_p    - to show or not the filters in the inlcude, default to "t"
+# from_package_id  - to watch mails of this package instance  
+# elements         - a list of elements to show in the list template. If not provided will show all elements.
+#                    Posible elemets are: sender_id recipient_id package_id subject object_id file_ids body sent_date
 
 ad_page_contract {
 
@@ -28,6 +28,7 @@ ad_page_contract {
     context:onevalue
 }
 
+
 set page_title [ad_conn instance_name]
 set context [list "index"]
 
@@ -35,19 +36,27 @@ if { [info exist object_id] && [empty_string_p $object_id] } {
    unset object_id
 }
 
+if { ![exists_and_not_null from_package_id] } {
+    if { [info exist pkg_id] && [empty_string_p $pkg_id] } {
+	unset package_id_f
+    }
+} else {
+    set pkg_id $from_package_id
+}
+
 if { ![exists_and_not_null show_filter_p] } {
     set show_filter_p "t"
 }
 
 if { ![exists_and_not_null page_size] } {
-    set page_size 10
+    set page_size 5
 }
 
 set tracking_url [apm_package_url_from_key "mail-tracking"]
 # Wich elements will be shown on the list template
 set rows_list [list]
 if {![exists_and_not_null elements] } {
-    set rows_list [list sender_id {} recipient_id {} package_id {} subject {} object_id {} file_ids {} body {} sent_date {}]
+    set rows_list [list sender_id {} recipient_id {} pkg_id {} subject {} object_id {} file_ids {} body {} sent_date {}]
 } else {
     foreach element $elements {
 	lappend rows_list $element
@@ -64,9 +73,9 @@ set filters [list \
 		     label "[_ mail-trackin.Object_id]"
 		     where_clause "object_id = :object_id"
 		 } \
-		 package_id {
+		 pkg_id {
 		     label "[_ mail-tracking.Package]"
-		     where_clause "package_id = :package_id"	
+		     where_clause "package_id = :pkg_id"	
 		 } ]
 
 set recipient_where_clause ""
@@ -116,7 +125,7 @@ template::list::create \
 		    @messages.receiver@
 	    }
 	}
-	package_id {
+	pkg_id {
 	    label "[_ mail-tracking.Package]"
 	    display_template {
 		<a href="@messages.package_url@">@messages.package_name@</a>
@@ -153,7 +162,7 @@ template::list::create \
 	    orderby sender_id
 	    label "[_ mail-tracking.Sender]"
 	}
-	package_id {
+	pkg_id {
 	    orderby package_id
 	    label "[_ mail-tracking.Package]"
 	}
@@ -194,7 +203,7 @@ db_multirow -extend { file_ids object_url sender receiver package_name package_u
 	}
     }
     
-    if {[exists_and_not_null $package_id]} {
+    if {[exists_and_not_null package_id]} {
 	set package_name [apm_instance_name_from_id $package_id]
 	set package_url [apm_package_url_from_id $package_id]
     } else {
