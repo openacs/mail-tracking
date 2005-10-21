@@ -9,6 +9,8 @@ ad_page_contract {
     @author Nima Mazloumi
     @creation-date Mon May 30 17:55:50 CEST 2005
     @cvs-id $Id$
+} {
+    {page:optional 1}
 }
 
 set page_title [ad_conn instance_name]
