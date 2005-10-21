@@ -1,14 +1,14 @@
 # Expects the following optional parameters (in each combination):
 #
-# recipient_id     - to filter mails for a single receiver
-# sender_id        - to filter mails for a single sender
+# recipient        - to filter mails for a single receiver
+# sender           - to filter mails for a single sender
 # object_id        - to filter mails for a object_id
 # page             - to filter the pagination
 # page_size        - to know how many rows show (optional default to 10)
 # show_filter_p    - to show or not the filters in the inlcude, default to "t"
 # from_package_id  - to watch mails of this package instance  
 # elements         - a list of elements to show in the list template. If not provided will show all elements.
-#                    Posible elemets are: sender_id recipient_id package_id subject object_id file_ids body sent_date
+#                    Posible elemets are: sender recipient pkg_id subject object file_ids body sent_date
 
 ad_page_contract {
 
@@ -17,30 +17,61 @@ ad_page_contract {
 @cvs-id $Id$
 } -query {
     recipient_id:optional
-    {emp_mail_f:optional 1}
     sender_id:optional
+    recipient:optional
+    {emp_mail_f:optional 1}
+    sender:optional
     package_id:optional
     object_id:optional
-    {orderby:optional "recipient_id"}
+    object:optional
+    {orderby:optional "recipient"}
 } -properties {
     show_filter_p
     acs_mail_log:multirow 
     context:onevalue
 }
 
-
 set page_title [ad_conn instance_name]
 set context [list "index"]
 
-if { [info exist object_id] && [empty_string_p $object_id] } {
-   unset object_id
+set required_param_list [list]
+set optional_param_list [list from_package_id recipient_id object_id]
+set optional_unset_list [list pkg_id object recipient sender]
+
+foreach required_param $required_param_list {
+    if {![info exists $required_param]} {
+        return -code error "$required_param is a required parameter."
+    }
 }
 
-if { ![exists_and_not_null from_package_id] } {
-    if { [info exist pkg_id] && [empty_string_p $pkg_id] } {
-	unset package_id_f
+foreach optional_param $optional_param_list {
+    if {![info exists $optional_param]} {
+        set $optional_param {}
     }
-} else {
+}
+
+foreach optional_unset $optional_unset_list {
+    if {[info exists $optional_unset]} {
+        if {[empty_string_p [set $optional_unset]]} {
+            unset $optional_unset
+        }
+    }
+}
+
+
+if { [exists_and_not_null sender_id] } {
+    set sender $sender_id
+}
+
+if { [exists_and_not_null recipient_id] } {
+    set recipient $recipient_id
+}
+
+if { [exists_and_not_null object_id] } {
+    set object $object_id
+} 
+
+if { [exists_and_not_null from_package_id] } {
     set pkg_id $from_package_id
 }
 
@@ -56,7 +87,7 @@ set tracking_url [apm_package_url_from_key "mail-tracking"]
 # Wich elements will be shown on the list template
 set rows_list [list]
 if {![exists_and_not_null elements] } {
-    set rows_list [list sender_id {} recipient_id {} pkg_id {} subject {} object_id {} file_ids {} body {} sent_date {}]
+    set rows_list [list sender {} recipient {} pkg_id {} subject {} object {} file_ids {} body {} sent_date {}]
 } else {
     foreach element $elements {
 	lappend rows_list $element
@@ -65,24 +96,25 @@ if {![exists_and_not_null elements] } {
 }
 
 set filters [list \
-		 sender_id {
+		 sender {
 		     label "[_ mail-tracking.Sender]"
-		     where_clause "sender_id = :sender_id"
+		     where_clause "sender_id = :sender"
 		 } \
-		 object_id {
+		 object {
 		     label "[_ mail-trackin.Object_id]"
-		     where_clause "object_id = :object_id"
+		     where_clause "object_id = :object"
 		 } \
 		 pkg_id {
 		     label "[_ mail-tracking.Package]"
 		     where_clause "package_id = :pkg_id"	
-		 } ]
+		 } \
+		 recipient { 
+		     label "[_ mail-tracking.Sender]"
+		     where_clause "recipient_id = :recipient"
+		 }
+		]
 
 set recipient_where_clause ""
-
-if { [exists_and_not_null recipient_id] } {
-    set recipient_where_clause " and recipient_id = $recipient_id"
-}
 
 if { [apm_package_installed_p organizations] && [exists_and_not_null recipient_id]} {
     set org_p [organization::organization_p -party_id $recipient_id] 
@@ -113,16 +145,16 @@ template::list::create \
     -page_query_name "messages_pagination" \
     -row_pretty_plural "[_ mail-tracking.messages]" \
     -elements { 
-	sender_id {
+	sender {
 	    label "[_ mail-tracking.Sender]"
 	    display_template {
-		@messages.sender@
+		@messages.sender_name@
 	    }
 	}
-	recipient_id {
+	recipient {
 	    label "[_ mail-tracking.Recipient]"
 	    display_template {
-		    @messages.receiver@
+		    @messages.receiver_name@
 	    }
 	}
 	pkg_id {
@@ -134,7 +166,7 @@ template::list::create \
 	subject {
 	    label "[_ mail-tracking.Subject]"
 	}
-	object_id {
+	object {
 	    label "[_ mail-tracking.Object_id]"
 	    display_template {
 		<a href="@messages.object_url@">@messages.object_id@</a>
@@ -154,11 +186,11 @@ template::list::create \
 	    label "[_ mail-tracking.Sent_Date]"
 	}            
     } -orderby {
-	recipient_id {
+	recipient {
 	    orderby recipient_id
 	    label "[_ mail-tracking.Recipient]"
 	}
-	sender_id {
+	sender {
 	    orderby sender_id
 	    label "[_ mail-tracking.Sender]"
 	}
@@ -183,23 +215,23 @@ template::list::create \
     } -filters $filters \
 
 
-db_multirow -extend { file_ids object_url sender receiver package_name package_url url_message_id download_files} messages select_messages { } {
-    set sender ""
-    set receiver ""
-    if { [catch { set sender [person::name -person_id $sender_id] } errMsg] } {
+db_multirow -extend { file_ids object_url sender_name receiver_name package_name package_url url_message_id download_files} messages select_messages { } {
+    set sender_name ""
+    set receiver_name ""
+    if { [catch { set sender_name [person::name -person_id $sender_id] } errMsg] } {
 	# We will try to see if it's a contact and has an email. This will break
 	# if the contacts package is not installed so this is why we need to put
 	# it inside a catch
-	if { [catch { set sender [contact::email -party_id $sender_id] } errorMsg] } {
-	    set sender ""
+	if { [catch { set sender_name [contact::email -party_id $sender_id] } errorMsg] } {
+	    set sender_name ""
 	}
     }
-    if { [catch { set receiver [person::name -person_id $recipient_id]} errMsg] } {
+    if { [catch { set receiver_name [person::name -person_id $recipient_id]} errMsg] } {
 	# We will try to see if it's a contact and has an email. This will break
 	# if the contacts package is not installed so this is why we need to put
 	# it inside a catch
-	if { [catch { set receiver [contact::email -party_id $recipient_id] } errorMsg] } {
-	    set receiver ""
+	if { [catch { set receiver_name [contact::email -party_id $recipient_id] } errorMsg] } {
+	    set receiver_name ""
 	}
     }
     
