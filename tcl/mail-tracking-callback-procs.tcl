@@ -22,7 +22,11 @@ ad_proc -public -callback acs_mail_lite::complex_send -impl mail_tracking {
 } {
     create a new entry in the mail tracking table
 } {
-
+    
+    # We need to put lindex here since the value from
+    # the swithc converts this "element element" to this
+    # "{element element}"
+    set file_ids [lindex $file_ids 0]
     set log_id [mail_tracking::new -package_id $package_id \
 		    -sender_id $from_party_id \
 		    -recipient_id $to_party_id \
