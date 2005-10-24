@@ -242,24 +242,31 @@ db_multirow -extend { file_ids object_url sender_name receiver_name package_name
 	set package_url ""
     }
 
-    # We get the related files
+
     set files [list]
-    set file_revisions [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_revision"]
-    
-    foreach file $file_revisions {
-	lappend files [item::get_item_from_revision $file]
-    }
-    
-    foreach file_id [application_data_link::get_linked -from_object_id $log_id -to_object_type "content_item"] {
-	lappend files $file_id
+    # We get the related files for all the object_types
+    set content_types [list content_revision content_item file_storage_object]
+
+    foreach content_type $content_types {
+
+	foreach file [application_data_link::get_linked -from_object_id $log_id -to_object_type "$content_type"] {
+	    if { [string equal $content_type "content_revision"] } {
+		lappend files [item::get_item_from_revision $file]
+	    } else {
+		lappend files $file
+	    }
+	}
     }
     
     set download_files ""
     
     foreach file $files {
 	set title [content::item::get_title -item_id $file]
+	if { [empty_string_p $title] } {
+	    set title [acs_object_name $file]
+	}
 	# Creating the link to dowload the files
-	append download_files "<a href=\"[export_vars -base "${tracking_url}download/$title" -url {{file_id $file}}]\">$title</a><br>"
+	append download_files "<a href=\"[export_vars -base "${tracking_url}download/$title" -url {{version_id $file}}]\">$title</a><br>"
     }
 
     set object_url "/o/$object_id"
