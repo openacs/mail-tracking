@@ -110,14 +110,11 @@ set filters [list \
 		 } \
 		 recipient { 
 		     label "[_ mail-tracking.Sender]"
-		     where_clause "recipient_id = :recipient"
 		 }
 		]
 
-set recipient_where_clause ""
-
-if { [apm_package_installed_p organizations] && [exists_and_not_null recipient_id]} {
-    set org_p [organization::organization_p -party_id $recipient_id] 
+if { [apm_package_installed_p organizations] && [exists_and_not_null recipient]} {
+    set org_p [organization::organization_p -party_id $recipient] 
     if { $org_p } {
 	lappend filters emp_mail_f {
 	    label "[_ mail-tracking.Emails_to]"
@@ -126,13 +123,15 @@ if { [apm_package_installed_p organizations] && [exists_and_not_null recipient_i
     }
     
     if { $org_p && [string equal $emp_mail_f 2] } {
-	set emp_list [contact::util::get_employees -organization_id $recipient_id]
-	lappend emp_list $recipient_id
+	set emp_list [contact::util::get_employees -organization_id $recipient]
+	lappend emp_list $recipient
 	set recipient_where_clause " and recipient_id in ([template::util::tcl_to_sql_list $emp_list])"
+    } else {
+	set recipient_where_clause " and recipient_id = :recipient"
     }
+} else {
+    set recipient_where_clause " and recipient_id = :recipient"
 }
-
-
 
 
 template::list::create \
