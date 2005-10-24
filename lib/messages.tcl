@@ -245,8 +245,7 @@ db_multirow -extend { file_ids object_url sender_name receiver_name package_name
 
     set files [list]
     # We get the related files for all the object_types
-    set content_types [list content_revision content_item file_storage_object]
-
+    set content_types [list content_revision content_item file_storage_object image]
     foreach content_type $content_types {
 
 	foreach file [application_data_link::get_linked -from_object_id $log_id -to_object_type "$content_type"] {
