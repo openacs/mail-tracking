@@ -129,8 +129,10 @@ if { [apm_package_installed_p organizations] && [exists_and_not_null recipient]}
     } else {
 	set recipient_where_clause " and recipient_id = :recipient"
     }
-} else {
+} elseif { [exists_and_not_null recipient] }  {
     set recipient_where_clause " and recipient_id = :recipient"
+} else {
+    set recipient_where_clause ""
 }
 
 
