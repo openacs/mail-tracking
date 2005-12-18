@@ -267,7 +267,7 @@ db_multirow -extend { file_ids object_url sender_name receiver_name package_name
 	    set title [acs_object_name $file]
 	}
 	# Creating the link to dowload the files
-	append download_files "<a href=\"[export_vars -base "${tracking_url}download/$title" -url {{version_id $file}}]\">$title</a><br>"
+	append download_files "<a href=\"[export_vars -base "${tracking_url}download/$title" -url {{file_id $file}}]\">$title</a><br>"
     }
 
     set object_url "/o/$object_id"
