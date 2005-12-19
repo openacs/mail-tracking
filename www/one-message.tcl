@@ -75,3 +75,7 @@ foreach file $files {
 }
 
 set download_files [join $download_files ", "]
+
+if {![ad_looks_like_html_p $body]} {
+    set body "<pre>$body</pre>"
+}

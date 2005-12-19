@@ -69,11 +69,7 @@ declare
 begin
 	v_log_id := acs_object__new (
 		p_log_id,         -- object_id
-		''mail_log'', -- object_type
-		now(),   -- creation_date
-		p_creation_user,   -- creation_user
-		p_creation_ip,     -- creation_ip
-	        null
+		''mail_log'' -- object_type
 	);
 
 	insert into acs_mail_log
