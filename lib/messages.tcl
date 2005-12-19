@@ -24,7 +24,7 @@ ad_page_contract {
     package_id:optional
     object_id:optional
     object:optional
-    {orderby:optional "recipient"}
+    {orderby:optional "sent_date,desc"}
 } -properties {
     show_filter_p
     acs_mail_log:multirow 
