@@ -8,6 +8,8 @@
 #mail-tracking.Sender#:      @sender;noquote@
 #mail-tracking.Recipient#:   @recipient;noquote@
 #mail-tracking.Subject#:     @subject;noquote@
-#mail-tracking.Attachments#: @download_files;noquote@</pre>
+#mail-tracking.Attachments#: @download_files;noquote@
+#mail-tracking.MessageID#: @message_id;noquote@
+</pre>
 
 @body;noquote@

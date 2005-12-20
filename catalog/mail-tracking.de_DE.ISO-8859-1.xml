@@ -7,6 +7,7 @@
   <msg key="Employees">Mitarbeiter</msg>
   <msg key="Go_Back">Zurück</msg>
   <msg key="Mail_Tracking">Mail Tracking</msg>
+  <msg key="MessageID">MessageID</msg>
   <msg key="messages">Nachrichten</msg>
   <msg key="One_message">Eine Nachricht</msg>
   <msg key="Organization">Organisation</msg>
@@ -14,6 +15,7 @@
   <msg key="Recipient">Empfänger</msg>
   <msg key="Request_mail_tracking_for_instance_name">Mail Tracking für %instance_name% einrichten</msg>
   <msg key="Request_Notification_for_instance_name">Benachrichtigung für %instance_name% beantragen</msg>
+  <msg key="Sender">Absender</msg>
   <msg key="Sent_Date">Versanddatum</msg>
   <msg key="Subject">Betreff</msg>
   <msg key="The_specified_message_does_not_exist">Die angegebene Nachricht existiert nicht.</msg>
