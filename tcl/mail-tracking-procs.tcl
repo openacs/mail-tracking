@@ -33,8 +33,10 @@ ad_proc -public mail_tracking::new {
     {-subject ""}
     {-object_id ""}
     {-context_id ""}
+    {-cc ""}
 } {
     Insert new log entry
+    @param cc CC E-Mail Address as recieved from the send procedures
 } {
     set creation_ip "127.0.0.1"
     return [db_exec_plsql insert_log_entry {select acs_mail_log__new (
@@ -48,7 +50,8 @@ ad_proc -public mail_tracking::new {
 								     :sender_id,
 								     :creation_ip,
 								     :context_id,
-								     :object_id
+								     :object_id,
+								     :cc
 								     )}]
     
 }	       

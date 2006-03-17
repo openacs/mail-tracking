@@ -34,7 +34,13 @@ create table acs_mail_log (
 	package_id		integer,
 	subject			varchar(1024),
 	body			text,
+	-- List of CC E-Mail addresses, seperated by "," as passed in from acs-mail-lite::send prozedures
+	cc			varchar(4000),
 	sent_date		timestamp);
+
+create index acs_mail_log_object_idx on acs_mail_log(object_id);
+create index acs_mail_log_recipient_idx on acs_mail_log(recipient_id);
+create index acs_mail_log_sender_idx on acs_mail_log(sender_id);
 
 
 -- create the content type
@@ -51,7 +57,7 @@ select acs_object_type__create_type (
    NULL                           -- name_method
 );
 
-create or replace function acs_mail_log__new (integer,varchar, integer, integer, integer, varchar, varchar,integer,varchar,integer,integer)
+create or replace function acs_mail_log__new (integer,varchar, integer, integer, integer, varchar, varchar,integer,varchar,integer,integer,varchar)
 returns integer as '
 declare	
 	p_log_id alias for $1;
@@ -65,6 +71,7 @@ declare
         p_creation_ip alias for $9;
         p_context_id alias for $10;
 	p_object_id alias for $11;
+	p_cc alias for $11;
 	v_log_id acs_mail_log.log_id%TYPE;
 begin
 	v_log_id := acs_object__new (
@@ -73,9 +80,9 @@ begin
 	);
 
 	insert into acs_mail_log
-		(log_id, message_id, recipient_id, sender_id, package_id, subject, body, sent_date, object_id)
+		(log_id, message_id, recipient_id, sender_id, package_id, subject, body, sent_date, object_id, cc)
 	values
-		(v_log_id, p_message_id, p_recipient_id, p_sender_id, p_package_id, p_subject, p_body, now(), p_object_id);
+		(v_log_id, p_message_id, p_recipient_id, p_sender_id, p_package_id, p_subject, p_body, now(), p_object_id, p_cc);
 
 	return v_log_id;
 

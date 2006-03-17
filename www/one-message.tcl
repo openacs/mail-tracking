@@ -29,6 +29,10 @@ if { [empty_string_p $return_url] } {
 # Get the information of the message
 db_1row get_message_info { }
 
+if {![exists_and_not_null cc]} {
+    set cc ""
+}
+
 if { [catch { set sender [person::name -person_id $sender_id] } errorMsg] } {
     # We will try to see if it's a contact and has an email. This will break
     # if the contacts package is not installed so this is why we need to put 

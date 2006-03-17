@@ -4,12 +4,16 @@
 
 <a href="@return_url;noquote@">#mail-tracking.Go_Back#</a>
 <br><br>
-<pre style="background-color: #eee; padding: .5em;">
-#mail-tracking.Sender#:      @sender;noquote@
-#mail-tracking.Recipient#:   @recipient;noquote@
-#mail-tracking.Subject#:     @subject;noquote@
-#mail-tracking.Attachments#: @download_files;noquote@
-#mail-tracking.MessageID#: @message_id;noquote@
-</pre>
-
+<div style="background-color: #eee; padding: .5em;">
+<table>
+<tr><td>
+#mail-tracking.Sender#:</td><td>@sender;noquote@</tr><td>
+#mail-tracking.Recipient#:</td><td>@recipient;noquote@</tr><td>
+#mail-tracking.CC#:</td><td>@cc;noquote@</tr><td>
+#mail-tracking.Subject#:</td><td>@subject;noquote@</tr><td>
+#mail-tracking.Attachments#:</td><td>@download_files;noquote@</tr><td>
+#mail-tracking.MessageID#:</td><td>@message_id;noquote@</tr>
+</table>
+</div>
+<p>
 @body;noquote@

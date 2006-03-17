@@ -245,6 +245,26 @@ db_multirow -extend { file_ids object_url sender_name receiver_name package_name
     }
 
 
+    set count 0
+    while {[regexp {^(.*?)\t?=\?[^\?]+\?Q\?(.*?)\?=\n?(.*?)$} $subject match before quoted after] && $count < 5} {
+	incr count
+	set result ""
+	for { set i 0 } { $i < [string length $quoted] } { incr i } {
+	    set current [string index $quoted $i]
+	    if {$current == "="} {
+		incr i
+		set high [string index $quoted $i]
+		incr i
+		set low [string index $quoted $i]
+		set current [binary format H2 "$high$low"]
+	    } elseif {[string eq $current "_"]} {
+		set current " "
+	    }
+	    append result $current
+	}
+	set subject "$before$result$after"
+    }
+
     set files [list]
     # We get the related files for all the object_types
     set content_types [list content_revision content_item file_storage_object image]
