@@ -101,7 +101,7 @@ set filters [list \
 		     where_clause "sender_id = :sender"
 		 } \
 		 object {
-		     label "[_ mail-trackin.Object_id]"
+		     label "[_ mail-tracking.Object_id]"
 		     where_clause "object_id = :object"
 		 } \
 		 pkg_id {
