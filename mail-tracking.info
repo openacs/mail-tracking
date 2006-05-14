@@ -8,7 +8,7 @@
     <singleton-p>t</singleton-p>
     <auto-mount>tracking</auto-mount>
 
-    <version name="0.4" url="http://openacs.org/repository/download/apm/mail-tracking-0.4.apm">
+    <version name="0.6" url="http://openacs.org/repository/download/apm/mail-tracking-0.6.apm">
         <owner url="mailto:mazloumi@uni-mannheim.de">Nima Mazloumi</owner>
         <summary>Mail tracking package. Records all messages send out by acs-mail-lite.</summary>
         <release-date>2005-10-24</release-date>
@@ -18,8 +18,8 @@
 </description>
         <maturity>0</maturity>
 
-        <provides url="mail-tracking" version="0.4"/>
-        <requires url="acs-mail-lite" version="1.0b2"/>
+        <provides url="mail-tracking" version="0.6"/>
+        <requires url="acs-mail-lite" version="1.2b1"/>
 
         <callbacks>
         </callbacks>

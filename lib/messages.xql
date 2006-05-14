@@ -8,7 +8,6 @@
          select 
 		message_id, 
 		sender_id, 
-		recipient_id, 
 		package_id, 
 		sent_date, 
 		body, 
@@ -17,9 +16,7 @@
 		log_id
         from 
 		acs_mail_log
-	where 1=1
-		$recipient_where_clause
-		[template::list::page_where_clause -and -name messages]		
+	where   [template::list::page_where_clause -name messages]		
         	[template::list::filter_where_clauses -and -name messages]
         	[template::list::orderby_clause -orderby -name messages]
         </querytext>
@@ -27,9 +24,9 @@
 
     <fullquery name="messages_pagination">
         <querytext>
-         select log_id
-        from acs_mail_log
-	where 1=1	
+         select distinct ml.log_id, sent_date
+        from acs_mail_log ml, acs_mail_log_recipient_map mlrm
+	where ml.log_id=mlrm.log_id
 	$recipient_where_clause 
         [template::list::filter_where_clauses -and -name messages]
         [template::list::orderby_clause -orderby -name messages]

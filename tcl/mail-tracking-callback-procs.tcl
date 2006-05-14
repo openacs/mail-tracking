@@ -13,32 +13,36 @@ ad_library {
 ad_proc -public -callback acs_mail_lite::complex_send -impl mail_tracking {
     {-package_id:required}
     {-from_party_id:required}
-    {-to_party_id:required}
+    {-to_party_ids ""}
+    {-cc_party_ids ""}
+    {-bcc_party_ids ""}
+    {-to_addr ""}
+    {-cc_addr ""}
+    {-bcc_addr ""}
     {-body ""}
     {-message_id:required}
     {-subject ""}
     {-object_id ""}
     {-file_ids ""}
-    {-cc ""}
 } {
     create a new entry in the mail tracking table
 } {
-    
-    if {![exists_and_not_null cc]} {
-	set cc ""
-    }
     # We need to put lindex here since the value from
     # the swithc converts this "element element" to this
     # "{element element}"
-    # set file_ids [lindex $file_ids 0]
     set file_ids [string trim $file_ids "{}"]
+
     set log_id [mail_tracking::new -package_id $package_id \
 		    -sender_id $from_party_id \
-		    -recipient_id $to_party_id \
+		    -recipient_ids $to_party_ids \
+		    -cc_ids $cc_party_ids \
+		    -bcc_ids $bcc_party_ids \
+		    -to_addr $to_addr \
+		    -cc_addr $cc_addr \
+		    -bcc_addr $bcc_addr \
 		    -body $body \
 		    -message_id $message_id \
 		    -subject $subject \
-		    -cc $cc \
 		    -object_id $object_id]
 
     foreach file_id $file_ids {

@@ -17,7 +17,7 @@
 
 create table acs_mail_log (
 	
-	log_id			integer
+	log_id			integer primary key
 				constraint acs_mail_log_object_id_fk
 				references acs_objects(object_id),
 	message_id		varchar(300),
@@ -25,23 +25,34 @@ create table acs_mail_log (
 	object_id		integer
 				constraint acs_mail_log_owner_id_fk
 				references acs_objects(object_id),
-	recipient_id		integer
-				constraint acs_mail_log_recipient_id_fk
-				references parties(party_id),
 	sender_id		integer
 				constraint acs_mail_log_sender_id_fk
 				references parties(party_id),
 	package_id		integer,
 	subject			varchar(1024),
 	body			text,
-	-- List of CC E-Mail addresses, seperated by "," as passed in from acs-mail-lite::send prozedures
+	-- List of CC/BCC E-Mail addresses, seperated by "," as passed in from acs-mail-lite::send prozedures
+	-- Only used for those emails that do not have a party_id in openacs.
 	cc			varchar(4000),
+	bcc			varchar(4000),
 	sent_date		timestamp);
 
 create index acs_mail_log_object_idx on acs_mail_log(object_id);
-create index acs_mail_log_recipient_idx on acs_mail_log(recipient_id);
 create index acs_mail_log_sender_idx on acs_mail_log(sender_id);
 
+create table acs_mail_log_recipient_map (
+	recipient_id		integer	constraint 
+	 			acs_mail_log_recipient_id_fk
+				references parties(party_id),
+	log_id			integer	
+ 				constraint acs_mail_log_log_id_fk
+				references acs_mail_log(log_id),
+	type 			varchar(30)
+);
+
+create index acs_mail_log_recipient_map_log_idx on acs_mail_log_recipient_map(log_id);
+create index acs_mail_log_recipient_map_recipient_idx on acs_mail_log_recipient_map(recipient_id);
+create index acs_mail_log_um_log_rec_idx on acs_mail_log_recipient_map(log_id,recipient_id,type);
 
 -- create the content type
 select acs_object_type__create_type (
@@ -57,21 +68,22 @@ select acs_object_type__create_type (
    NULL                           -- name_method
 );
 
-create or replace function acs_mail_log__new (integer,varchar, integer, integer, integer, varchar, varchar,integer,varchar,integer,integer,varchar)
+create or replace function acs_mail_log__new (integer,varchar, integer, integer, varchar, varchar,integer,varchar,integer,integer,varchar,varchar,varchar)
 returns integer as '
 declare	
 	p_log_id alias for $1;
 	p_message_id alias for $2;
-	p_recipient_id alias for $3;
-	p_sender_id alias for $4;
-	p_package_id alias for $5;
-	p_subject alias for $6;
-	p_body alias for $7;
-	p_creation_user alias for $8;
-        p_creation_ip alias for $9;
-        p_context_id alias for $10;
-	p_object_id alias for $11;
+	p_sender_id alias for $3;
+	p_package_id alias for $4;
+	p_subject alias for $5;
+	p_body alias for $6;
+	p_creation_user alias for $7;
+        p_creation_ip alias for $8;
+        p_context_id alias for $9;
+	p_object_id alias for $10;
 	p_cc alias for $11;
+	p_bcc alias for $12;
+	p_to_addr alias for $13;
 	v_log_id acs_mail_log.log_id%TYPE;
 begin
 	v_log_id := acs_object__new (
@@ -80,9 +92,9 @@ begin
 	);
 
 	insert into acs_mail_log
-		(log_id, message_id, recipient_id, sender_id, package_id, subject, body, sent_date, object_id, cc)
+		(log_id, message_id, sender_id, package_id, subject, body, sent_date, object_id, cc, bcc, to_addr)
 	values
-		(v_log_id, p_message_id, p_recipient_id, p_sender_id, p_package_id, p_subject, p_body, now(), p_object_id, p_cc);
+		(v_log_id, p_message_id, p_sender_id, p_package_id, p_subject, p_body, now(), p_object_id, p_cc, p_bcc, p_to_addr);
 
 	return v_log_id;
 

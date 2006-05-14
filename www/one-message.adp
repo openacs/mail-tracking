@@ -9,7 +9,8 @@
 <tr><td>
 #mail-tracking.Sender#:</td><td>@sender;noquote@</tr><td>
 #mail-tracking.Recipient#:</td><td>@recipient;noquote@</tr><td>
-#mail-tracking.CC#:</td><td>@cc;noquote@</tr><td>
+#mail-tracking.CC#:</td><td>@cc_string;noquote@</tr><td>
+#mail-tracking.BCC#:</td><td>@bcc_string;noquote@</tr><td>
 #mail-tracking.Subject#:</td><td>@subject;noquote@</tr><td>
 #mail-tracking.Attachments#:</td><td>@download_files;noquote@</tr><td>
 #mail-tracking.MessageID#:</td><td>@message_id;noquote@</tr>

@@ -107,11 +107,8 @@ set filters [list \
 		 pkg_id {
 		     label "[_ mail-tracking.Package]"
 		     where_clause "package_id = :pkg_id"	
-		 } \
-		 recipient { 
-		     label "[_ mail-tracking.Sender]"
-		 }
-		]
+		 } 
+	    ]
 
 if { [apm_package_installed_p organizations] && [exists_and_not_null recipient]} {
     set org_p [organization::organization_p -party_id $recipient] 
@@ -125,12 +122,12 @@ if { [apm_package_installed_p organizations] && [exists_and_not_null recipient]}
     if { $org_p && [string equal $emp_mail_f 2] } {
 	set emp_list [contact::util::get_employees -organization_id $recipient]
 	lappend emp_list $recipient
-	set recipient_where_clause " and recipient_id in ([template::util::tcl_to_sql_list $emp_list])"
+	set recipient_where_clause " and mlrm.recipient_id in ([template::util::tcl_to_sql_list $emp_list])"
     } else {
-	set recipient_where_clause " and recipient_id = :recipient"
+	set recipient_where_clause " and mlrm.recipient_id = :recipient"
     }
 } elseif { [exists_and_not_null recipient] }  {
-    set recipient_where_clause " and recipient_id = :recipient"
+    set recipient_where_clause " and mlrm.recipient_id = :recipient"
 } else {
     set recipient_where_clause ""
 }
@@ -142,7 +139,7 @@ template::list::create \
     -multirow messages \
     -key acs_mail_log.log_id \
     -page_size $page_size \
-    -page_flush_p 0 \
+    -page_flush_p 1 \
     -page_query_name "messages_pagination" \
     -row_pretty_plural "[_ mail-tracking.messages]" \
     -elements { 
@@ -155,7 +152,7 @@ template::list::create \
 	recipient {
 	    label "[_ mail-tracking.Recipient]"
 	    display_template {
-		    @messages.receiver_name@
+		@messages.recipient;noquote@
 	    }
 	}
 	pkg_id {
@@ -187,10 +184,6 @@ template::list::create \
 	    label "[_ mail-tracking.Sent_Date]"
 	}            
     } -orderby {
-	recipient {
-	    orderby recipient_id
-	    label "[_ mail-tracking.Recipient]"
-	}
 	sender {
 	    orderby sender_id
 	    label "[_ mail-tracking.Sender]"
@@ -216,25 +209,14 @@ template::list::create \
     } -filters $filters \
 
 
-db_multirow -extend { file_ids object_url sender_name receiver_name package_name package_url url_message_id download_files} messages select_messages { } {
-    set sender_name ""
-    set receiver_name ""
-    if { [catch { set sender_name [person::name -person_id $sender_id] } errMsg] } {
-	# We will try to see if it's a contact and has an email. This will break
-	# if the contacts package is not installed so this is why we need to put
-	# it inside a catch
-	if { [catch { set sender_name [contact::email -party_id $sender_id] } errorMsg] } {
-	    set sender_name ""
-	}
+db_multirow -extend { file_ids object_url sender_name recipient package_name package_url url_message_id download_files} messages select_messages { } {
+
+    set sender_name [party::name -party_id $sender_id]
+    set reciever_list [list]
+    db_foreach reciever_id {select recipient_id from acs_mail_log_recipient_map where type ='to' and log_id = :log_id and recipient_id is not null} {
+	lappend reciever_list [party::name -party_id $recipient_id]
     }
-    if { [catch { set receiver_name [person::name -person_id $recipient_id]} errMsg] } {
-	# We will try to see if it's a contact and has an email. This will break
-	# if the contacts package is not installed so this is why we need to put
-	# it inside a catch
-	if { [catch { set receiver_name [contact::email -party_id $recipient_id] } errorMsg] } {
-	    set receiver_name ""
-	}
-    }
+    set recipient [join $reciever_list "<br>"]
     
     if {[exists_and_not_null package_id]} {
 	set package_name [apm_instance_name_from_id $package_id]
