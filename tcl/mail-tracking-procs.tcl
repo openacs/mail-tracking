@@ -38,6 +38,7 @@ ad_proc -public mail_tracking::new {
     {-subject ""}
     {-object_id ""}
     {-context_id ""}
+    {-file_ids ""}
 } {
     Insert new log entry
 
@@ -52,9 +53,14 @@ ad_proc -public mail_tracking::new {
     @param message_id Message_id of the email
     @param subject Subject of the email
     @param object_id Object for which this message was sent
-    @param context_id Context in which this message was send.
+    @param context_id Context in which this message was send. Will replace object_id
+    @param file_ids Files send with this e-mail
 } {
     set creation_ip "127.0.0.1"
+    if {![string eq "" $context_id]} {
+	set object_id $context_id
+    }
+    
 
     # First create the message entry 
     set log_id [db_exec_plsql insert_log_entry {select acs_mail_log__new (
@@ -72,6 +78,11 @@ ad_proc -public mail_tracking::new {
 								     :bcc_addr,
 								     :to_addr
 								     )}]
+
+    ns_log Debug "Mail Traking OBJECT $object_id  CONTEXT $context_id FILES $file_ids LOGS $log_id"
+    foreach file_id $file_ids {
+	application_data_link::new -this_object_id $log_id -target_object_id $file_id
+    }
 
     # Now add the recipients to the log_id
     

@@ -32,6 +32,12 @@ ad_proc -public -callback acs_mail_lite::complex_send -impl mail_tracking {
     # "{element element}"
     set file_ids [string trim $file_ids "{}"]
 
+    foreach optional_param {cc_party_ids bcc_party_ids to_addr cc_addr bcc_addr body subject object_id file_ids to_party_ids} {
+	if {![info exists $optional_param]} {
+	    set $optional_param {}
+	}
+    }
+
     set log_id [mail_tracking::new -package_id $package_id \
 		    -sender_id $from_party_id \
 		    -recipient_ids $to_party_ids \
@@ -43,11 +49,9 @@ ad_proc -public -callback acs_mail_lite::complex_send -impl mail_tracking {
 		    -body $body \
 		    -message_id $message_id \
 		    -subject $subject \
+		    -file_ids $file_ids \
 		    -object_id $object_id]
 
-    foreach file_id $file_ids {
-	application_data_link::new -this_object_id $log_id -target_object_id $file_id
-    }
 }
 
 ad_proc -public -callback acs_mail_lite::send -impl mail_tracking {
@@ -63,7 +67,7 @@ ad_proc -public -callback acs_mail_lite::send -impl mail_tracking {
 
     set log_id [mail_tracking::new -package_id $package_id \
 		    -sender_id $from_party_id \
-		    -recipient_id $to_party_id \
+		    -recipient_ids $to_party_id \
 		    -body $body \
 		    -message_id $message_id \
 		    -subject $subject]
