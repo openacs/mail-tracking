@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="mail-tracking" package_version="0.3b3" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="mail-tracking" package_version="0.6" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Attachments">Attachments</msg>
+  <msg key="BCC">BCC</msg>
   <msg key="Body">Body</msg>
+  <msg key="CC">CC</msg>
   <msg key="Emails_to">Watch Emails to:</msg>
   <msg key="Employees">Employees</msg>
   <msg key="Files">Files</msg>
+  <msg key="Forward">Forward</msg>
+  <msg key="Forward_message">Forward message</msg>
   <msg key="Go_Back">Go Back</msg>
   <msg key="Mail_Tracking">Mail Tracking</msg>
   <msg key="MessageID">MessageID</msg>

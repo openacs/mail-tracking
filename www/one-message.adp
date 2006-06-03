@@ -2,7 +2,7 @@
 <property name="title">@page_title;noquote@</property>
 <property name="context">@context;noquote@</property>
 
-<a href="@return_url;noquote@">#mail-tracking.Go_Back#</a>
+<a href="@return_url;noquote@">#mail-tracking.Go_Back#</a> | <a href="forward?log_id=@log_id@">#mail-tracking.Forward#</a>
 <br><br>
 <div style="background-color: #eee; padding: .5em;">
 <table>
