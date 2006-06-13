@@ -250,25 +250,16 @@ db_multirow -extend { file_ids object_url sender_name recipient package_name pac
     set files [list]
     # We get the related files for all the object_types
     set content_types [list content_revision content_item file_storage_object image]
-    foreach content_type $content_types {
-
-	foreach file [application_data_link::get_linked -from_object_id $log_id -to_object_type "$content_type"] {
-	    if { [string equal $content_type "content_revision"] } {
-		lappend files [item::get_item_from_revision $file]
-	    } else {
-		lappend files $file
-	    }
+    db_foreach files {} {
+	if { [string equal $content_type "content_revision"] } {
+	    set file [item::get_item_from_revision $file_id]
+	} else {
+	    set file $file_id
 	}
-    }
-    
-    set download_files ""
-    
-    foreach file $files {
 	set title [content::item::get_title -item_id $file]
 	if { [empty_string_p $title] } {
 	    set title [acs_object_name $file]
 	}
-	# Creating the link to dowload the files
 	append download_files "<a href=\"[export_vars -base "${tracking_url}download/$title" -url {{file_id $file}}]\">$title</a><br>"
     }
 
