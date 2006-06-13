@@ -33,4 +33,15 @@
         </querytext>
     </fullquery>
 
+    <fullquery name="files">
+        <querytext>
+	select o.object_type as content_type, o.object_id as file_id 
+	from acs_data_links r, acs_objects o 
+	where r.object_id_one = :log_id 
+	and r.object_id_two = o.object_id 
+	and o.object_type in ([template::util::tcl_to_sql_list $content_types]) 
+	order by o.object_type, o.object_id
+        </querytext>
+    </fullquery>
+
 </queryset>
