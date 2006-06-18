@@ -211,11 +211,19 @@ template::list::create \
 
 db_multirow -extend { file_ids object_url sender_name recipient package_name package_url url_message_id download_files} messages select_messages { } {
 
-    set sender_name [party::name -party_id $sender_id]
+    if {$sender_id eq ""} {
+	set sender_name "" 
+    } else {
+	set sender_name [party::name -party_id $sender_id]
+    }
+
     set reciever_list [list]
-    db_foreach reciever_id {select recipient_id from acs_mail_log_recipient_map where type ='to' and log_id = :log_id and recipient_id is not null} {
+    set reciever_list [db_list get_recievers {select recipient_id from acs_mail_log_recipient_map where type ='to' and log_id = :log_id and recipient_id is not null}] 
+
+    foreach recipient_id $reciever_list {
 	lappend reciever_list [party::name -party_id $recipient_id]
     }
+
     set recipient [join $reciever_list "<br>"]
     
     if {[exists_and_not_null package_id]} {
@@ -250,8 +258,10 @@ db_multirow -extend { file_ids object_url sender_name recipient package_name pac
     set files [list]
     # We get the related files for all the object_types
     set content_types [list content_revision content_item file_storage_object image]
-    db_foreach files {} {
-	if { [string equal $content_type "content_revision"] } {
+    set files [db_list_of_lists files {}]
+    foreach file_from_list $files {
+	set file_id [lindex $file_from_list 1]
+	if { [string equal [lindex $file_from_list 0] "content_revision"] } {
 	    set file [item::get_item_from_revision $file_id]
 	} else {
 	    set file $file_id
