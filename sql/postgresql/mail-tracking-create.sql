@@ -40,6 +40,7 @@ create table acs_mail_log (
 create index acs_mail_log_object_idx on acs_mail_log(object_id);
 create index acs_mail_log_sender_idx on acs_mail_log(sender_id);
 
+-- recipient_mapping_table
 create table acs_mail_log_recipient_map (
 	recipient_id		integer	constraint 
 	 			acs_mail_log_recipient_id_fk
@@ -48,6 +49,16 @@ create table acs_mail_log_recipient_map (
  				constraint acs_mail_log_log_id_fk
 				references acs_mail_log(log_id),
 	type 			varchar(30)
+);
+
+-- file_mapping_table
+create table acs_mail_log_attachment_map (
+	log_id 			integer
+				constraint acs_mail_log_log_id2_fk
+				references acs_mail_log(log_id),
+	file_id			integer
+				constraint acs_mail_log_file_id_fk
+				references cr_items(item_id)
 );
 
 create index acs_mail_log_recipient_map_log_idx on acs_mail_log_recipient_map(log_id);
@@ -87,8 +98,15 @@ declare
 	v_log_id acs_mail_log.log_id%TYPE;
 begin
 	v_log_id := acs_object__new (
-		p_log_id,         -- object_id
-		''mail_log'' -- object_type
+	 	p_log_id,
+      	 	''mail_log'', 
+      		now(),
+      		p_creation_user, 
+	  	p_creation_ip, 
+      		p_context_id,
+	       ''t'',
+      		null,
+      		p__package_id
 	);
 
 	insert into acs_mail_log

@@ -61,7 +61,7 @@ ad_proc -public mail_tracking::new {
 	set object_id $context_id
     }
     
-
+    set log_id [db_nextval "acs_object_id_seq"]
     # First create the message entry 
     set log_id [db_exec_plsql insert_log_entry {select acs_mail_log__new (
 								     :log_id,
