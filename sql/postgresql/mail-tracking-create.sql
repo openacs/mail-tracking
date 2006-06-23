@@ -79,7 +79,7 @@ select acs_object_type__create_type (
    NULL                           -- name_method
 );
 
-create or replace function acs_mail_log__new (integer,varchar, integer, integer, varchar, varchar,integer,varchar,integer,integer,varchar,varchar,varchar)
+create or replace function acs_mail_log__new (integer,varchar, integer, integer, varchar, varchar,integer,varchar,varchar,varchar)
 returns integer as '
 declare	
 	p_log_id alias for $1;
@@ -88,27 +88,12 @@ declare
 	p_package_id alias for $4;
 	p_subject alias for $5;
 	p_body alias for $6;
-	p_creation_user alias for $7;
-        p_creation_ip alias for $8;
-        p_context_id alias for $9;
-	p_object_id alias for $10;
-	p_cc alias for $11;
-	p_bcc alias for $12;
-	p_to_addr alias for $13;
+	p_object_id alias for $7;
+	p_cc alias for $8;
+	p_bcc alias for $9;
+	p_to_addr alias for $10;
 	v_log_id acs_mail_log.log_id%TYPE;
 begin
-	v_log_id := acs_object__new (
-	 	p_log_id,
-      	 	''mail_log'', 
-      		now(),
-      		p_creation_user, 
-	  	p_creation_ip, 
-      		p_context_id,
-	       ''t'',
-      		null,
-      		p__package_id
-	);
-
 	insert into acs_mail_log
 		(log_id, message_id, sender_id, package_id, subject, body, sent_date, object_id, cc, bcc, to_addr)
 	values

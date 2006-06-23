@@ -24,4 +24,11 @@
     </querytext>
 </fullquery>
 
+    <fullquery name="files">
+        <querytext>
+	select file_id from acs_mail_log_attachment_map
+	where log_id = :log_id
+        </querytext>
+    </fullquery>
+
 </queryset>

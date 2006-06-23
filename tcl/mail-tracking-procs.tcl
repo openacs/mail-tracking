@@ -81,7 +81,11 @@ ad_proc -public mail_tracking::new {
 
     ns_log Debug "Mail Traking OBJECT $object_id  CONTEXT $context_id FILES $file_ids LOGS $log_id"
     foreach file_id $file_ids {
-	application_data_link::new -this_object_id $log_id -target_object_id $file_id
+	set item_id [content::revision::item_id -revision_id $file_id]
+	if {$item_id eq ""} {
+	    set item_id $file_id
+	}
+	db_dml insert_file_map "insert into acs_mail_log_attachment_map (log_id,file_id) values (:log_id,:file_id)"
     }
 
     # Now add the recipients to the log_id

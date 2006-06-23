@@ -255,22 +255,10 @@ db_multirow -extend { file_ids object_url sender_name recipient package_name pac
 	set subject "$before$result$after"
     }
 
-    set files [list]
-    # We get the related files for all the object_types
-    set content_types [list content_revision content_item file_storage_object image]
-    set files [db_list_of_lists files {}]
-    foreach file_from_list $files {
-	set file_id [lindex $file_from_list 1]
-	if { [string equal [lindex $file_from_list 0] "content_revision"] } {
-	    set file [item::get_item_from_revision $file_id]
-	} else {
-	    set file $file_id
-	}
-	set title [content::item::get_title -item_id $file]
-	if { [empty_string_p $title] } {
-	    set title [acs_object_name $file]
-	}
-	append download_files "<a href=\"[export_vars -base "${tracking_url}download/$title" -url {{file_id $file}}]\">$title</a><br>"
+    set files [db_list files {}]
+    foreach file_id $files {
+	set title [content::item::get_title -item_id $file_id]
+	append download_files "<a href=\"[export_vars -base "${tracking_url}download/$title" -url {file_id}]\">$title</a><br>"
     }
 
     set object_url "/o/$object_id"
