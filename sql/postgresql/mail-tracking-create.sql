@@ -17,9 +17,7 @@
 
 create table acs_mail_log (
 	
-	log_id			integer primary key
-				constraint acs_mail_log_object_id_fk
-				references acs_objects(object_id),
+	log_id			integer primary key,
 	message_id		varchar(300),
 	-- object_id of the object that triggered the sending of the email
 	object_id		integer

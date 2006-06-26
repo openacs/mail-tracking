@@ -38,6 +38,7 @@ insert into acs_mail_log_attachment_map (log_id, file_id) select r.object_id_one
 	and o.object_type in ('image') 
 	and r.object_id_one = m.log_id;
 
+alter table acs_mail_log drop constraint acs_mail_log_object_id_fk;
 create or replace function acs_mail_log__new (integer,varchar, integer, integer, varchar, varchar,integer,varchar,varchar,varchar)
 returns integer as '
 declare	
@@ -51,13 +52,12 @@ declare
 	p_cc alias for $8;
 	p_bcc alias for $9;
 	p_to_addr alias for $10;
-	v_log_id acs_mail_log.log_id%TYPE;
 begin
 	insert into acs_mail_log
 		(log_id, message_id, sender_id, package_id, subject, body, sent_date, object_id, cc, bcc, to_addr)
 	values
-		(v_log_id, p_message_id, p_sender_id, p_package_id, p_subject, p_body, now(), p_object_id, p_cc, p_bcc, p_to_addr);
+		(p_log_id, p_message_id, p_sender_id, p_package_id, p_subject, p_body, now(), p_object_id, p_cc, p_bcc, p_to_addr);
 
-	return v_log_id;
+	return p_log_id;
 
 end;' language 'plpgsql';
