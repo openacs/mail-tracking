@@ -63,21 +63,12 @@ ad_proc -public mail_tracking::new {
     
     set log_id [db_nextval "acs_object_id_seq"]
     # First create the message entry 
-    set log_id [db_exec_plsql insert_log_entry {select acs_mail_log__new (
-								     :log_id,
-								     :message_id,
-								     :sender_id,
-								     :package_id,
-								     :subject,
-								     :body,
-								     :sender_id,
-								     :creation_ip,
-								     :context_id,
-								     :object_id,
-								     :cc_addr,
-								     :bcc_addr,
-								     :to_addr
-								     )}]
+    db_dml insert_mail_log {
+	insert into acs_mail_log
+	(log_id, message_id, sender_id, package_id, subject, body, sent_date, object_id, cc, bcc, to_addr)
+	values
+	(:log_id, :message_id, :sender_id, :package_id, :subject, :body, now(), :object_id, :cc_addr, :bcc_addr, :to_addr)
+    }
 
     ns_log Debug "Mail Traking OBJECT $object_id  CONTEXT $context_id FILES $file_ids LOGS $log_id"
     foreach file_id $file_ids {

@@ -24,7 +24,7 @@
 
     <fullquery name="messages_pagination">
         <querytext>
-         select distinct ml.log_id, sent_date
+         select distinct ml.log_id, sent_date, package_id, subject, sender_id
         from acs_mail_log ml left outer join acs_mail_log_recipient_map mlrm on (ml.log_id=mlrm.log_id)
 	where 1=1
 	$recipient_where_clause 

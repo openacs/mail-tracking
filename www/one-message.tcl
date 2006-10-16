@@ -85,6 +85,7 @@ set bcc_string [join $reciever_list ","]
 
 # We get the related files
 set tracking_url [apm_package_url_from_key "mail-tracking"]
+set download_files [list]
 set files [db_list files {}]
 foreach file_id $files {
     set title [content::item::get_title -item_id $file_id]
