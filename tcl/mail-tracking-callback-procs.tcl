@@ -73,3 +73,18 @@ ad_proc -public -callback acs_mail_lite::send -impl mail_tracking {
 		    -subject $subject]
 
 }
+
+ad_proc -public -callback fs::file_delete -impl mail-tracking {
+    {-package_id:required}
+    {-file_id:required}
+} {
+    Create a copy of the file and attach it to the mail-tracking entry, if the file is referenced
+} {
+
+    if {[db_string file_attached_p "select 1 from acs_mail_log_attachment_map where file_id = :file_id" -default 0]} {
+	set package_id [apm_package_id_from_key mail-tracking]
+	set new_file_id [fs::file_copy -file_id $file_id -target_folder_id $package_id]
+	db_dml update_file "update acs_mail_log_attachment_map set file_id = :new_file_id where file_id = :file_id"
+    }
+}
+    

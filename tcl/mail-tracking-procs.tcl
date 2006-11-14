@@ -63,25 +63,20 @@ ad_proc -public mail_tracking::new {
     
 
     # First create the message entry 
-    set log_id [db_exec_plsql insert_log_entry {select acs_mail_log__new (
-								     :log_id,
-								     :message_id,
-								     :sender_id,
-								     :package_id,
-								     :subject,
-								     :body,
-								     :sender_id,
-								     :creation_ip,
-								     :context_id,
-								     :object_id,
-								     :cc_addr,
-								     :bcc_addr,
-								     :to_addr
-								     )}]
+    db_dml insert_mail_log {
+	insert into acs_mail_log
+	(log_id, message_id, sender_id, package_id, subject, body, sent_date, object_id, cc, bcc, to_addr)
+	values
+	(:log_id, :message_id, :sender_id, :package_id, :subject, :body, now(), :object_id, :cc_addr, :bcc_addr, :to_addr)
+    }
 
-    ns_log Debug "Mail Traking OBJECT $object_id  CONTEXT $context_id FILES $file_ids LOGS $log_id"
     foreach file_id $file_ids {
-	application_data_link::new -this_object_id $log_id -target_object_id $file_id
+	set item_id [content::revision::item_id -revision_id $file_id]
+	if {$item_id eq ""} {
+	    set item_id $file_id
+	}
+	db_dml insert_file_map "insert into acs_mail_log_attachment_map (log_id,file_id) values (:log_id,:file_id)"
+	permission::grant -party_id $sender_id -object_id $file_id  -privilege "read"
     }
 
     # Now add the recipients to the log_id

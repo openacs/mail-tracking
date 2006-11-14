@@ -54,6 +54,20 @@ create index acs_mail_log_recipient_map_log_idx on acs_mail_log_recipient_map(lo
 create index acs_mail_log_recipient_map_recipient_idx on acs_mail_log_recipient_map(recipient_id);
 create index acs_mail_log_um_log_rec_idx on acs_mail_log_recipient_map(log_id,recipient_id,type);
 
+-- file_mapping_table
+create table acs_mail_log_attachment_map (
+	log_id 			integer
+				constraint acs_mail_log_log_id2_fk
+				references acs_mail_log(log_id),
+	file_id			integer
+				constraint acs_mail_log_file_id_fk
+				references cr_items(item_id)
+);
+
+create index acs_mail_log_att_map_file_idx on acs_mail_log_attachment_map(file_id);	
+create index acs_mail_log_att_map_log_idx on acs_mail_log_attachment_map(log_id);	
+
+
 -- create the content type
 select acs_object_type__create_type (
    'mail_log',              -- content_type

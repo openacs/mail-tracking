@@ -83,29 +83,12 @@ if {![string eq "" $bcc]} {
 set bcc_string [join $reciever_list ","]
 
 # We get the related files
-set files [list]
-
-set content_types [list content_revision content_item file_storage_object image]
-foreach content_type $content_types {
-    
-    foreach file [application_data_link::get_linked -from_object_id $log_id -to_object_type "$content_type"] {
-	if { [string equal $content_type "content_revision"] } {
-	    lappend files [item::get_item_from_revision $file]
-	} else {
-	    lappend files $file
-	}
-    }
-}
-
+set tracking_url [apm_package_url_from_key "mail-tracking"]
 set download_files [list]
-
-foreach file $files {
-    set title [content::item::get_title -item_id $file]
-    if { [empty_string_p $title]} {
-	set title [acs_object_name $file]
-    }
-    # Creating the link to dowload the files
-    lappend download_files "<a href=\"[export_vars -base "download/$title" -url {{file_id $file}}]\">$title</a>"
+set files [db_list files {}]
+foreach file_id $files {
+    set title [content::item::get_title -item_id $file_id]
+    lappend download_files "<a href=\"[export_vars -base "${tracking_url}download/$title" -url {file_id}]\">$title</a><br>"
 }
 
 set download_files [join $download_files ", "]
