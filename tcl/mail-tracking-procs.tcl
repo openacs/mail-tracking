@@ -61,7 +61,7 @@ ad_proc -public mail_tracking::new {
 	set object_id $context_id
     }
     
-
+    set log_id [db_nextval "acs_object_id_seq"]
     # First create the message entry 
     db_dml insert_mail_log {
 	insert into acs_mail_log
@@ -70,13 +70,13 @@ ad_proc -public mail_tracking::new {
 	(:log_id, :message_id, :sender_id, :package_id, :subject, :body, now(), :object_id, :cc_addr, :bcc_addr, :to_addr)
     }
 
+    ns_log Debug "Mail Traking OBJECT $object_id  CONTEXT $context_id FILES $file_ids LOGS $log_id"
     foreach file_id $file_ids {
 	set item_id [content::revision::item_id -revision_id $file_id]
 	if {$item_id eq ""} {
 	    set item_id $file_id
 	}
 	db_dml insert_file_map "insert into acs_mail_log_attachment_map (log_id,file_id) values (:log_id,:file_id)"
-	permission::grant -party_id $sender_id -object_id $file_id  -privilege "read"
     }
 
     # Now add the recipients to the log_id
