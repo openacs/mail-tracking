@@ -35,10 +35,14 @@ if {![exists_and_not_null cc]} {
     set cc ""
 }
 
-if {$contacts_package_id} {
-    set sender "<a href=\"[contact::url -party_id $sender_id  -package_id $contacts_package_id]\">[party::name -party_id $sender_id]</a>"
+if {[exists_and_not_null sender_id]} {
+    if {$contacts_package_id} {
+	set sender "<a href=\"[contact::url -party_id $sender_id  -package_id $contacts_package_id]\">[party::name -party_id $sender_id]</a>"
+    } else {
+	set sender [party::name -party_id $sender_id]
+    }
 } else {
-    set sender [party::name -party_id $sender_id]
+    set sender "Unknown"
 }
 
 set reciever_list [list]
