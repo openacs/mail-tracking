@@ -3,6 +3,7 @@
 # recipient        - to filter mails for a single receiver
 # sender           - to filter mails for a single sender
 # object_id        - to filter mails for a object_id
+# party    - filter for the recipient, which is actually a sender or recipient
 # page             - to filter the pagination
 # page_size        - to know how many rows show (optional default to 10)
 # show_filter_p    - to show or not the filters in the inlcude, default to "t"
@@ -19,6 +20,7 @@ ad_page_contract {
     recipient_id:optional
     sender_id:optional
     recipient:optional
+    party:optional
     {emp_mail_f:optional 1}
     sender:optional
     package_id:optional
@@ -35,7 +37,7 @@ set page_title [ad_conn instance_name]
 set context [list "index"]
 
 set required_param_list [list]
-set optional_param_list [list from_package_id recipient_id object_id]
+set optional_param_list [list from_package_id recipient_id object_id party]
 set optional_unset_list [list pkg_id object recipient sender]
 
 foreach required_param $required_param_list {
@@ -128,6 +130,8 @@ if { [apm_package_installed_p organizations] && [exists_and_not_null recipient]}
     }
 } elseif { [exists_and_not_null recipient] }  {
     set recipient_where_clause " and mlrm.recipient_id = :recipient"
+} elseif { [exists_and_not_null party]} {
+    set recipient_where_clause " and (mlrm.recipient_id = :party or sender_id = :party)"
 } else {
     set recipient_where_clause ""
 }
@@ -146,7 +150,7 @@ template::list::create \
 	sender {
 	    label "[_ mail-tracking.Sender]"
 	    display_template {
-		@messages.sender_name@
+		@messages.sender_name;noquote@
 	    }
 	}
 	recipient {
@@ -214,14 +218,14 @@ db_multirow -extend { file_ids object_url sender_name recipient package_name pac
     if {$sender_id eq ""} {
 	set sender_name "" 
     } else {
-	set sender_name [party::name -party_id $sender_id]
+	set sender_name "<a href=\"[contact::url -party_id $sender_id -package_id [contact::package_id -party_id $sender_id]]\">[party::name -party_id $sender_id]</a>"
     }
 
     set reciever_list [list]
-    set reciever_list [db_list get_recievers {select recipient_id from acs_mail_log_recipient_map where type ='to' and log_id = :log_id and recipient_id is not null}] 
+    set reciever_list2 [db_list get_recievers {select recipient_id from acs_mail_log_recipient_map where type ='to' and log_id = :log_id and recipient_id is not null}] 
 
-    foreach recipient_id $reciever_list {
-	lappend reciever_list [party::name -party_id $recipient_id]
+    foreach recipient_id $reciever_list2 {
+	lappend reciever_list "<a href=\"[contact::url -party_id $recipient_id -package_id [contact::package_id -party_id $recipient_id]]\">[party::name -party_id $recipient_id]</a>"
     }
 
     set recipient [join $reciever_list "<br>"]
