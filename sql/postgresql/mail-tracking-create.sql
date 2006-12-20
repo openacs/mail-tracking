@@ -35,7 +35,8 @@ create table acs_mail_log (
 	-- Only used for those emails that do not have a party_id in openacs.
 	cc			varchar(4000),
 	bcc			varchar(4000),
-	sent_date		timestamp);
+	sent_date		timestamp,
+        to_addr                 varchar(4000));
 
 create index acs_mail_log_object_idx on acs_mail_log(object_id);
 create index acs_mail_log_sender_idx on acs_mail_log(sender_id);
