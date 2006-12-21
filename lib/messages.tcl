@@ -112,7 +112,7 @@ set filters [list \
 		 } 
 	    ]
 
-if { [apm_package_installed_p organizations] && [exists_and_not_null recipient]} {
+if { [apm_package_installed_p contacts] && [exists_and_not_null recipient]} {
     set org_p [organization::organization_p -party_id $recipient] 
     if { $org_p } {
 	lappend filters emp_mail_f {
@@ -215,17 +215,20 @@ template::list::create \
 
 db_multirow -extend { file_ids object_url sender_name recipient package_name package_url url_message_id download_files} messages select_messages { } {
 
-    if {$sender_id eq ""} {
-	set sender_name "" 
-    } else {
+    if { [apm_package_installed_p contacts] && [exists_and_not_null sender_id]} { 
 	set sender_name "<a href=\"[contact::url -party_id $sender_id -package_id [contact::package_id -party_id $sender_id]]\">[party::name -party_id $sender_id]</a>"
+    } else {
+	set sender_name "" 
     }
 
     set reciever_list [list]
     set reciever_list2 [db_list get_recievers {select recipient_id from acs_mail_log_recipient_map where type ='to' and log_id = :log_id and recipient_id is not null}] 
 
     foreach recipient_id $reciever_list2 {
+    if { [apm_package_installed_p contacts] } { 
 	lappend reciever_list "<a href=\"[contact::url -party_id $recipient_id -package_id [contact::package_id -party_id $recipient_id]]\">[party::name -party_id $recipient_id]</a>"
+    } else {
+	lappend reciever_list "[party::name -party_id $recipient_id]</a>"
     }
 
     set recipient [join $reciever_list "<br>"]

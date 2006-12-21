@@ -19,7 +19,6 @@
         <maturity>0</maturity>
 
         <provides url="mail-tracking" version="0.6.4"/>
-	<requires url="file-storage" version="5.3.0d1"/>
         <callbacks>
         </callbacks>
         <parameters>
