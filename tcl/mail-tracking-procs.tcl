@@ -26,7 +26,8 @@ ad_proc -public mail_tracking::package_key {} {
 ad_proc -public mail_tracking::new {
     {-log_id ""}
     {-package_id:required}
-    {-sender_id:required}
+    {-sender_id ""}
+    {-from_addr ""}
     {-recipient_ids:required}
     {-cc_ids ""}
     {-bcc_ids ""}
@@ -43,6 +44,7 @@ ad_proc -public mail_tracking::new {
     Insert new log entry
 
     @param sender_id party_id of the sender
+    @param from_addr e-mail address of the sender. At least party_id or from_addr should be given
     @param recipient_ids List of party_ids of recipients
     @param cc_ids List of party_ids for recipients in the "CC" field
     @param bcc_ids List of party_ids for recipients in the "BCC" field
@@ -65,9 +67,9 @@ ad_proc -public mail_tracking::new {
     # First create the message entry 
     db_dml insert_mail_log {
 	insert into acs_mail_log
-	(log_id, message_id, sender_id, package_id, subject, body, sent_date, object_id, cc, bcc, to_addr)
+	(log_id, message_id, sender_id, package_id, subject, body, sent_date, object_id, cc, bcc, to_addr, from_addr)
 	values
-	(:log_id, :message_id, :sender_id, :package_id, :subject, :body, now(), :object_id, :cc_addr, :bcc_addr, :to_addr)
+	(:log_id, :message_id, :sender_id, :package_id, :subject, :body, now(), :object_id, :cc_addr, :bcc_addr, :to_addr, :from_addr)
     }
 
     ns_log Debug "Mail Traking OBJECT $object_id  CONTEXT $context_id FILES $file_ids LOGS $log_id"

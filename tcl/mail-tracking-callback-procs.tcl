@@ -13,6 +13,7 @@ ad_library {
 ad_proc -public -callback acs_mail_lite::complex_send -impl mail_tracking {
     {-package_id:required}
     {-from_party_id:required}
+    {-from_addr ""}
     {-to_party_ids ""}
     {-cc_party_ids ""}
     {-bcc_party_ids ""}
@@ -40,6 +41,7 @@ ad_proc -public -callback acs_mail_lite::complex_send -impl mail_tracking {
 
     set log_id [mail_tracking::new -package_id $package_id \
 		    -sender_id $from_party_id \
+		    -from_addr $from_addr \
 		    -recipient_ids $to_party_ids \
 		    -cc_ids $cc_party_ids \
 		    -bcc_ids $bcc_party_ids \

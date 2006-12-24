@@ -36,7 +36,9 @@ create table acs_mail_log (
 	cc			varchar(4000),
 	bcc			varchar(4000),
 	sent_date		timestamp,
-        to_addr                 varchar(4000));
+        to_addr                 varchar(4000),
+        from_addr               varchar(400));
+
 
 create index acs_mail_log_object_idx on acs_mail_log(object_id);
 create index acs_mail_log_sender_idx on acs_mail_log(sender_id);

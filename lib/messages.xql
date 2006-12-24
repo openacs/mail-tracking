@@ -8,6 +8,7 @@
          select 
 		message_id, 
 		sender_id, 
+		from_addr,
 		package_id, 
 		sent_date, 
 		body, 

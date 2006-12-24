@@ -13,9 +13,9 @@
 
 ad_page_contract {
 
-@author Nima Mazloumi
-@creation-date Mon May 30 17:55:50 CEST 2005
-@cvs-id $Id$
+    @author Nima Mazloumi
+    @creation-date Mon May 30 17:55:50 CEST 2005
+    @cvs-id $Id$
 } -query {
     recipient_id:optional
     sender_id:optional
@@ -215,20 +215,25 @@ template::list::create \
 
 db_multirow -extend { file_ids object_url sender_name recipient package_name package_url url_message_id download_files} messages select_messages { } {
 
-    if { [apm_package_installed_p contacts] && [exists_and_not_null sender_id]} { 
-	set sender_name "<a href=\"[contact::url -party_id $sender_id -package_id [contact::package_id -party_id $sender_id]]\">[party::name -party_id $sender_id]</a>"
+    if {[exists_and_not_null sender_id]} { 
+	if { [apm_package_installed_p contacts] } {
+	    set sender_name "<a href=\"[contact::url -party_id $sender_id -package_id [contact::package_id -party_id $sender_id]]\">[party::name -party_id $sender_id]</a>"
+	} else {
+	    set sender_name "[party::name -party_id $sender_id]"
+	}
     } else {
-	set sender_name "" 
+	set sender_name $from_addr
     }
-
+    
     set reciever_list [list]
     set reciever_list2 [db_list get_recievers {select recipient_id from acs_mail_log_recipient_map where type ='to' and log_id = :log_id and recipient_id is not null}] 
-
+    
     foreach recipient_id $reciever_list2 {
-    if { [apm_package_installed_p contacts] } { 
-	lappend reciever_list "<a href=\"[contact::url -party_id $recipient_id -package_id [contact::package_id -party_id $recipient_id]]\">[party::name -party_id $recipient_id]</a>"
-    } else {
-	lappend reciever_list "[party::name -party_id $recipient_id]</a>"
+	if { [apm_package_installed_p contacts] } { 
+	    lappend reciever_list "<a href=\"[contact::url -party_id $recipient_id -package_id [contact::package_id -party_id $recipient_id]]\">[party::name -party_id $recipient_id]</a>"
+	} else {
+	    lappend reciever_list "[party::name -party_id $recipient_id]</a>"
+	}
     }
 
     set recipient [join $reciever_list "<br>"]
