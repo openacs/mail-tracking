@@ -23,7 +23,7 @@ ad_page_contract {
     party:optional
     {emp_mail_f:optional 1}
     sender:optional
-    package_id:optional
+    from_package_id:optional
     object_id:optional
     object:optional
     {orderby:optional "sent_date,desc"}
@@ -60,13 +60,14 @@ foreach optional_unset $optional_unset_list {
     }
 }
 
-
+set package_id_list [list]
 if { [exists_and_not_null sender_id] } {
     set sender $sender_id
 }
 
 if { [exists_and_not_null recipient_id] } {
     set recipient $recipient_id
+    set package_id_list [concat $package_id_list [db_list package_ids "select package_id from acs_mail_log where recipient_id = :sender"]]
 }
 
 if { [exists_and_not_null object_id] } {
@@ -105,10 +106,6 @@ set filters [list \
 		 object {
 		     label "[_ mail-tracking.Object_id]"
 		     where_clause "object_id = :object"
-		 } \
-		 pkg_id {
-		     label "[_ mail-tracking.Package]"
-		     where_clause "package_id = :pkg_id"	
 		 } 
 	    ]
 
@@ -136,6 +133,21 @@ if { [apm_package_installed_p contacts] && [exists_and_not_null recipient]} {
     set recipient_where_clause ""
 }
 
+# If we have a recipient filter, offer the filter for package_ids
+set package_id_list [list]
+if {$recipient_where_clause ne ""} {
+    set package_ids [db_list package_ids "select distinct package_id as package_id2 from acs_mail_log ml, acs_mail_log_recipient_map mlrm where ml.log_id = mlrm.log_id $recipient_where_clause"]
+    foreach package_id2 $package_ids {
+	lappend package_id_list [list [acs_object_name $package_id2] $package_id2]
+    }    
+}
+
+# Always append the filter for package_ids, but note that it is only selectable if we filter by recipient
+lappend filters pkg_id {
+    label "[_ mail-tracking.Package]"
+    values $package_id_list
+    where_clause "package_id = :pkg_id"	
+} 
 
 template::list::create \
     -name messages \
