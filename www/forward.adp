@@ -9,7 +9,7 @@
        party_ids   = List of party_id's to send a message. Here they are project assignees
        export_vars = variables that you want to be present on the include form (For example project_id)
        return_url  = Url to redirect after the process is finished
-       file_ids    = revision_id of files you wan't to include in your message
+       file_ids    = revision_id of files you want to include in your message
 
  -->
 
