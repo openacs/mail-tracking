@@ -87,7 +87,7 @@ if { ![exists_and_not_null page_size] } {
 }
 
 set tracking_url [apm_package_url_from_key "mail-tracking"]
-# Wich elements will be shown on the list template
+# Which elements will be shown on the list template
 set rows_list [list]
 if {![exists_and_not_null elements] } {
     set rows_list [list sender {} recipient {} pkg_id {} subject {} object {} file_ids {} body {} sent_date {}]
