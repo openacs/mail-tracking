@@ -31,7 +31,7 @@ create table acs_mail_log (
 	package_id		integer,
 	subject			varchar(1024),
 	body			text,
-	-- List of CC/BCC E-Mail addresses, seperated by "," as passed in from acs-mail-lite::send prozedures
+	-- List of CC/BCC E-Mail addresses, separated by "," as passed in from acs-mail-lite::send procedures
 	-- Only used for those emails that do not have a party_id in openacs.
 	cc			varchar(4000),
 	bcc			varchar(4000),

@@ -48,9 +48,9 @@ ad_proc -public mail_tracking::new {
     @param recipient_ids List of party_ids of recipients
     @param cc_ids List of party_ids for recipients in the "CC" field
     @param bcc_ids List of party_ids for recipients in the "BCC" field
-    @param to_addr List of email addresses seperated by "," who received the email in the "to" field but got no party_id
-    @param cc_addr List of email addresses seperated by "," who received the email in the "cc" field but got no party_id
-    @param bcc_addr List of email addresses seperated by "," who received the email in the "bcc" field but got no party_id
+    @param to_addr List of email addresses separated by "," who received the email in the "to" field but got no party_id
+    @param cc_addr List of email addresses separated by "," who received the email in the "cc" field but got no party_id
+    @param bcc_addr List of email addresses separated by "," who received the email in the "bcc" field but got no party_id
     @param body Text of the message
     @param message_id Message_id of the email
     @param subject Subject of the email
@@ -62,7 +62,7 @@ ad_proc -public mail_tracking::new {
     if {![string eq "" $context_id]} {
 	set object_id $context_id
     }
-    
+
     set log_id [db_nextval "acs_object_id_seq"]
     # First create the message entry 
     db_dml insert_mail_log {
