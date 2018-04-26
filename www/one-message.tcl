@@ -19,7 +19,7 @@ ad_page_contract {
 # We need to figure out a way to detect which contacts package a party_id belongs to
 
 set page_title "[_ mail-tracking.One_message]"
-set context [list]
+set context {}
 set sender ""
 set receiver ""
 
@@ -45,7 +45,7 @@ if {[exists_and_not_null sender_id]} {
     set sender "Unknown"
 }
 
-set reciever_list [list]
+set reciever_list {}
 db_foreach reciever_id {select recipient_id from acs_mail_log_recipient_map where type ='to' and log_id = :log_id and recipient_id is not null} {
     if {$contacts_package_id} {
 	lappend reciever_list "<a href=\"[contact::url -party_id $recipient_id  -package_id $contacts_package_id]\">[party::name -party_id $recipient_id]</a>"
@@ -59,7 +59,7 @@ if {![string eq "" $to_addr]} {
 set recipient [join $reciever_list ","]
 
 # Now the CC users
-set reciever_list [list]
+set reciever_list {}
 db_foreach reciever_id {select recipient_id from acs_mail_log_recipient_map where type ='cc' and log_id = :log_id and recipient_id is not null} {
     if {$contacts_package_id} {
 	lappend reciever_list "<a href=\"[contact::url -party_id $recipient_id  -package_id $contacts_package_id]\">[party::name -party_id $recipient_id]</a>"
@@ -73,7 +73,7 @@ if {![string eq "" $cc]} {
 set cc_string [join $reciever_list ","]
 
 # And the BCC ones
-set reciever_list [list]
+set reciever_list {}
 db_foreach reciever_id {select recipient_id from acs_mail_log_recipient_map where type ='bcc' and log_id = :log_id and recipient_id is not null} {
     if {$contacts_package_id} {
 	lappend reciever_list "<a href=\"[contact::url -party_id $recipient_id  -package_id $contacts_package_id]\">[party::name -party_id $recipient_id]</a>"
@@ -88,7 +88,7 @@ set bcc_string [join $reciever_list ","]
 
 # We get the related files
 set tracking_url [apm_package_url_from_key "mail-tracking"]
-set download_files [list]
+set download_files {}
 set files [db_list files {}]
 foreach file_id $files {
     set title [content::item::get_title -item_id $file_id]
