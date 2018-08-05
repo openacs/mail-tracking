@@ -24,7 +24,7 @@
         <callbacks>
         </callbacks>
         <parameters>
-            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="TrackAllMails"  default="1" description="Wether to track simply all mails leaving acs-mail-lite or only those requested by the admin."/>
+            <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="TrackAllMails"  default="1" description="Whether to track simply all mails leaving acs-mail-lite or only those requested by the admin."/>
         </parameters>
 
     </version>
